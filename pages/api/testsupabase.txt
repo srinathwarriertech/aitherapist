@@ -1,0 +1,27 @@
+import type { NextApiRequest, NextApiResponse } from 'next'
+import { createClient } from '@supabase/supabase-js';
+ 
+type ResponseData = {
+  message: string
+}
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing Supabase environment variables');
+}
+
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+export default async function Messages(
+  req: NextApiRequest,
+  res: NextApiResponse<ResponseData>
+) {
+    const { data, error } = await supabase
+    .from('notes')
+    .select();
+
+    //return JSON.stringify(message, null, 2);
+    res.status(200).json({ message: 'Hello from Next.js! and req.body:<' + req.body +"> and res:<"+JSON.stringify(data)+">"})
+  }

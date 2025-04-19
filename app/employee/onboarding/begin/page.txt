@@ -1,0 +1,79 @@
+"use client"
+import { ThemeProvider } from '@mui/material/styles';
+import { Button, Typography, Box, Paper, List, ListItem, ListItemIcon, ListItemText, Container, Divider } from '@mui/material';
+import { useRouter } from 'next/navigation';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import theme from '../../../theme'; // Adjust the import path as necessary
+
+interface FeedbackPageProps {
+  userName: string;
+}
+
+const FeedbackPage: React.FC<FeedbackPageProps> = ({ userName }) => {
+  const router = useRouter();
+
+  const handleBegin = () => {
+    router.push('/feedback/questions');
+  };
+
+  return (
+    <ThemeProvider theme={theme}>
+      <Container maxWidth="md">
+        <Box
+          display="flex"
+          flexDirection="column"
+          justifyContent="center"
+          alignItems="center"
+          minHeight="100vh"
+          py={4}
+        >
+          <Paper elevation={3} sx={{ p: 4, width: '100%' }}>
+            <Typography variant="h4" gutterBottom align="center" color="primary">
+              Hi Ajay, tell us what brings you to NeuroLiving.
+            </Typography>
+            {/* <Typography variant="h6" gutterBottom align="center">
+              Tell us what brings you here today
+            </Typography> */}
+
+            <Divider sx={{ my: 3 }} />
+
+            <Box display="flex" alignItems="center" mb={3}>
+              <AccessTimeIcon color="action" sx={{ mr: 1 }} />
+              <Typography variant="subtitle1">Estimated time: 3-5 minutes</Typography>
+            </Box>
+
+            <List>
+              {[
+                "We are going to ask you a series of questions.",
+                "Your answers are safe and confidential.",
+                "Some questions may not apply to you."
+              ].map((text, index) => (
+                <ListItem key={index} disableGutters>
+                  <ListItemIcon>
+                    <CheckCircleOutlineIcon color="primary" />
+                  </ListItemIcon>
+                  <ListItemText primary={text} />
+                </ListItem>
+              ))}
+            </List>
+
+            <Box display="flex" justifyContent="center" mt={4}>
+              <Button
+                variant="contained"
+                color="primary"
+                size="large"
+                onClick={handleBegin}
+                sx={{ minWidth: 200 }}
+              >
+                Lets begin
+              </Button>
+            </Box>
+          </Paper>
+        </Box>
+      </Container>
+    </ThemeProvider>
+  );
+};
+
+export default FeedbackPage;
