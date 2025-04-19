@@ -3,7 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from '@supabase/supabase-js';
- 
+import { currentUser } from '@clerk/nextjs/server'
+import { formSchema} from './page';
+
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
@@ -13,39 +15,28 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-export async function createTodo(
-  prevState: {
-    message: string;
-  },
-  formData: FormData,
+export async function onboardingFormSubmit(
+  values: z.infer<typeof formSchema>
 ) {
-  const schema = z.object({
-    todo: z.string().min(1),
-  });
-  const parse = schema.safeParse({
-    todo: formData.get("todo"),
-  });
-
-  if (!parse.success) {
-    return { message: "Failed to create todo" };
+  const user = await currentUser();
+  if(user)
+  {
+    console.log("id:"+user.id);
+    values.userId = user.id;
   }
+  
 
-  const toDoData = parse.data;
 
   try {
-    // await sql`
-    //   INSERT INTO todos (text)
-    //   VALUES (${data.todo})
-    // `;
     const { data, error } = await supabase
-        .from('notes')
-        .insert({ title: 'Todo:'+ JSON.stringify(toDoData)})
-        .select()
+    .from('OnboardingFormResponses')
+    .insert({ onboardingResponse: values })
+    .select();
 
-    revalidatePath("/");
-    return { message: `Added todo ${data}` };
+    if(error)console.log('Error inserting data:'+ JSON.stringify(error));
+    if(data)console.log('Inserted data:'+ JSON.stringify(data));
   } catch (e) {
-    return { message: "Failed to create todo" };
+    return { message: "Failed to insert onboardingform" };
   }
 }
 

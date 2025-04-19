@@ -6,6 +6,7 @@ import { z } from "zod"
 import { useState } from "react"
 import { createClient } from '@supabase/supabase-js';
 import { useRouter } from "next/navigation"
+import { onboardingFormSubmit} from './actions'
 
 
 import { Button } from "@/components/ui/button"
@@ -71,12 +72,13 @@ const mentalHealthFrequency = [
   { id: "nearly_every_day", label: "Nearly every day" },
 ] as const
 
-const formSchema = z.object({
+export const formSchema = z.object({
   goals: z.array(z.string()).min(1, { message: "Please select at least one goal" }),
   productivity_impact: z.number().min(0).max(7),
   work_missed: z.number().min(0).max(7),
   relationship_issues: z.number().min(0).max(7),
   feeling_down: z.string().min(1, { message: "Please select an option" }),
+  userId: z.string(),
 })
 
 export default function ProfileForm() {
@@ -90,6 +92,7 @@ export default function ProfileForm() {
       work_missed: 0,
       relationship_issues: 0,
       feeling_down: "",
+      userId: "",
     },
   })
   const router = useRouter()
@@ -101,13 +104,7 @@ export default function ProfileForm() {
     console.log(values)
 
 
-    const { data, error } = await supabase
-    .from('OnboardingFormResponses')
-    .insert({ onboardingResponse: values })
-    .select();
-
-    if(error)console.log('Error inserting data:'+ JSON.stringify(error));
-    if(data)console.log('Inserted data:'+ JSON.stringify(data));
+    await onboardingFormSubmit(values);
 
     router.push('/chat')
   }
