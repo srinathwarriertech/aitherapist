@@ -30,40 +30,29 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider>
-      <html lang="en">
-        <body className={inter.className}>
-          <SignedOut>
-            <div className="flex flex-col items-center justify-center min-h-screen bg-background">
-              <h1 className="text-4xl font-bold mb-8 text-primary">Welcome to NeuroLiving</h1>
-              <SignInButton />
-            </div>
-          </SignedOut>
+    <html lang="en" suppressHydrationWarning>
+      <body className={inter.className}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <ClerkProvider>
+            <SignedOut>
+              <div className="flex flex-col items-center justify-center min-h-screen bg-background">
+                <h1 className="text-4xl font-bold mb-8 text-primary">Welcome to NeuroLiving</h1>
+                <SignInButton />
+              </div>
+            </SignedOut>
 
-
-          <SignedIn>
-            
-            <Header />
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="system"
-              enableSystem
-              disableTransitionOnChange
-            >
-            {children}
-            </ThemeProvider>
-
-            {/* <SidebarProvider>
-              <AppSidebar />
-              <main>
-                <SidebarTrigger />
-                    <UserButton /> 
-                    {children}                   
-                </main>
-            </SidebarProvider> */}
-          </SignedIn>
-        </body>
-      </html>
-    </ClerkProvider>
+            <SignedIn>
+              <Header />
+              {children}
+            </SignedIn>
+          </ClerkProvider>
+        </ThemeProvider>
+      </body>
+    </html>
   );
 }
