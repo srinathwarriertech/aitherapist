@@ -6,14 +6,11 @@ import { concat } from '@langchain/core/utils/stream';
 import { groq } from '@ai-sdk/groq';
 import { generateText } from 'ai';
 import { createGroq } from '@ai-sdk/groq';
+import { queryKnowledge } from '@/app/lib/embeddings'
 
 const mygroq = createGroq({
-  // custom settings
-  // model: "mixtral-8x7b-32768",
   baseURL: 'https://api.groq.com/openai/v1',
   apiKey: process.env.GROQ_API_KEY
-  // temperature: 0,
-  // apiKey: process.env.GROQ_KEY 
 });
 
 
@@ -62,12 +59,22 @@ export async function getGroqChatCompletion(messages: Message[]) {
 
 
 export async function getGroqResponse(messages: Message[]) {
+  const lastMessage = messages[messages.length - 1].content
+  const knowledge = await queryKnowledge(lastMessage)
+
   const { text } = await generateText({
-    // model: mygroq('mixtral-8x7b-32768'),
-    // model: mygroq('deepseek-r1-distill-llama-70b'),
     model: mygroq('deepseek-r1-distill-llama-70b'),
-    // prompt: 'Write a vegetarian lasagna recipe for 4 people.',
-    messages: messages
+    messages: [
+      ...messages,
+      {
+        role: "system",
+        content: `Answer using ONLY this knowledge base:
+        ${knowledge}
+        
+        If no relevant information exists, say "I need to consult my knowledge base to answer that properly."`
+      }
+    ]
   });
+  
   return text;
 }

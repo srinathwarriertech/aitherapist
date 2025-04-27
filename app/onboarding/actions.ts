@@ -18,25 +18,31 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 export async function onboardingFormSubmit(
   values: z.infer<typeof formSchema>
 ) {
-  const user = await currentUser();
-  if(user)
-  {
-    console.log("id:"+user.id);
-    values.userId = user.id;
-  }
-  
-
-
   try {
-    const { data, error } = await supabase
-    .from('OnboardingFormResponses')
-    .insert({ onboardingResponse: values })
-    .select();
+    // Try to get current user, but make it optional
+    const user = await currentUser().catch(() => null);
+    
+    if (user) {
+      console.log("id:" + user.id);
+      values.userId = user.id;
+    } else {
+      // Use a default ID if no user is available
+      values.userId = 'anonymous-' + Date.now().toString();
+      console.log("Using anonymous ID:", values.userId);
+    }
 
-    if(error)console.log('Error inserting data:'+ JSON.stringify(error));
-    if(data)console.log('Inserted data:'+ JSON.stringify(data));
+    const { data, error } = await supabase
+      .from('OnboardingFormResponses')
+      .insert({ onboardingResponse: values })
+      .select();
+
+    if (error) console.log('Error inserting data:' + JSON.stringify(error));
+    if (data) console.log('Inserted data:' + JSON.stringify(data));
+    
+    return { success: !error, message: error ? "Failed to save data" : "Data saved successfully" };
   } catch (e) {
-    return { message: "Failed to insert onboardingform" };
+    console.error('Error in onboardingFormSubmit:', e);
+    return { success: false, message: "Failed to insert onboardingform" };
   }
 }
 

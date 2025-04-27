@@ -4,7 +4,8 @@ const nextConfig = {
     images: { unoptimized: true },
     experimental: {
       serverActions: true,
-    }
+    },
+    devIndicators: false
   };
   
   module.exports = nextConfig;

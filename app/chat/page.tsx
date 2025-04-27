@@ -56,29 +56,27 @@ const theme = createTheme({
   },
 });
 
-function getPrompt(){
-  const prompt0 = ""+
-        "You are Maya, an AI therapist designed to provide compassionate and personalized mental health support. "+
-        "Give 1 line answers , not asking for too much information at once, break them down."+
-        "Before starting the conversation, here is the user's onboarding information: "+
-        //"- Age: 29 "+
-        "- Gender: Female "+
-        "- Location: Mumbai, India "+
-        "- Occupation: Software Engineer "+
-        " Onboarding Questionnaire Summary: "+
-        "- Main concern: Managing work-life balance. "+
-        "- Stress triggers: Deadlines and lack of sleep. "+
-        "- Current coping strategies: Yoga and journaling. "+
-        "- Therapy goals: Improve focus and reduce anxiety. "+
-        "Your goal is to create a safe and supportive space for the user. Start the conversation slowly, asking one question at a time to encourage thoughtful and detailed responses. Avoid overwhelming the user with too many questions at once."+
-        "Begin by introducing yourself and asking a simple, open-ended question like: 'How are you feeling today?' Use the user's onboarding information to guide the conversation naturally, addressing their specific concerns and goals over time. Respond empathetically, and wait for the user's input before asking follow-up questions."
-        // "Use this information to understand the user's background and tailor your responses accordingly. "+
-        // "Be empathetic, supportive, and insightful. "+
-        // "Always prioritize the user's mental wellbeing and adapt your guidance to their specific needs. "+
-       
-        // "Now, start the conversation by introducing yourself and asking how you can help today."
 
-  const prompt = "You are Maya, an AI therapist designed to support users with mental health. "+
+function getPrompt(){
+  // Retrieve onboarding data from sessionStorage
+  const onboardingData = typeof window !== 'undefined' 
+    ? sessionStorage.getItem('onboardingData')
+    : null;
+  const userData = onboardingData ? JSON.parse(onboardingData) : {};
+
+  const prompt0 = `You are Airoh, an AI therapist designed to provide compassionate and personalized mental health support.
+    Give 1 line answers, not asking for too much information at once, break them down.
+    Before starting the conversation, here is the user's onboarding information:
+    - Goals: ${userData.goals?.join(', ') || 'Not specified'}
+    - Productivity Impact: ${userData.productivity_impact || 0} days
+    - Work Missed: ${userData.work_missed || 0} days
+    - Relationship Issues: ${userData.relationship_issues || 0} days
+    - Feeling Down Frequency: ${userData.feeling_down || 'Not specified'}
+
+    Your goal is to create a safe and supportive space for the user. Start the conversation slowly, 
+    asking one question at a time to encourage thoughtful and detailed responses.`;
+
+  const prompt = "You are Airoh, an AI therapist designed to support users with mental health. "+
     "Give 1 line answers , not asking for too much information at once, break them down."+
 
 
@@ -90,6 +88,11 @@ function getPrompt(){
     "You should be empathetic, concise, and clear in your responses. Always ensure to ask the user if they have followed the instructions before proceeding to the next step. "+
     "If they do not understand or need clarification, explain in simple terms. "+
     "Your tone is calm, supportive, and non-judgmental. Always encourage users to take care of their mental health."
+
+    // const prompt2=      //content: "You are a compassionate and helpful mental health expert called Maya in the app NeuroLiving by Dr. Sid Warrier, India's top neuroscientist, providing users with emotional support and practical advice."+
+    //       "Your answers are warm, but with a deep knowledge of Neuroscience."+
+    //        "You set the context, but only ask one question back to user at a time.",
+
   return prompt0;
 };
 
@@ -100,9 +103,6 @@ export default function Chatbot() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "system",
-      //content: "You are a compassionate and helpful mental health expert called Maya in the app NeuroLiving by Dr. Sid Warrier, India's top neuroscientist, providing users with emotional support and practical advice."+
-      //       "Your answers are warm, but with a deep knowledge of Neuroscience."+
-      //        "You set the context, but only ask one question back to user at a time.",
       content:getPrompt()
     },
   ]);
@@ -167,6 +167,9 @@ export default function Chatbot() {
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
+          position: 'fixed',
+          left: '50%',
+          transform: 'translateX(-50%)',
         }}
       >
         <Paper 
@@ -180,6 +183,8 @@ export default function Chatbot() {
             display: 'flex',
             flexDirection: 'column',
             overflow: 'hidden',
+            height: 'calc(100vh - 32px)',
+            maxHeight: 'calc(100vh - 32px)',
           }}
         >
           <Box sx={{ 
@@ -200,7 +205,7 @@ export default function Chatbot() {
                 gap: 1,
               }}
             >
-              Maya - by NeuroLiving
+              Airoh
             </Typography>
           </Box>
 
@@ -293,11 +298,15 @@ export default function Chatbot() {
               display: 'flex', 
               flexDirection: 'column',
               gap: 2,
-              p: 2,
+              p: { xs: 1, sm: 2 },  // Reduced padding on mobile
               borderTop: '1px solid rgba(0, 0, 0, 0.08)',
             }}
           >
-            <Box sx={{ display: 'flex', gap: 2 }}>
+            <Box sx={{ 
+              display: 'flex', 
+              gap: { xs: 1, sm: 2 },  // Reduced gap on mobile
+              flexDirection: { xs: 'column', sm: 'row' }  // Stack on mobile, row on tablet/desktop
+            }}>
               <TextField
                 fullWidth
                 variant="outlined"
@@ -308,6 +317,8 @@ export default function Chatbot() {
                 sx={{
                   '& .MuiOutlinedInput-root': {
                     backgroundColor: '#f8f9fa',
+                    minHeight: { xs: '48px', sm: '56px' },  // Taller input on mobile for better touch
+                    fontSize: { xs: '16px', sm: 'inherit' },  // Prevent zoom on mobile
                     '&:hover': {
                       backgroundColor: '#fff',
                     },
@@ -326,9 +337,11 @@ export default function Chatbot() {
                 variant="contained"
                 onClick={handleSendMessage}
                 sx={{
-                  minWidth: '120px',
+                  minWidth: { xs: '100%', sm: '120px' },  // Full width on mobile
+                  minHeight: { xs: '48px', sm: '56px' },  // Taller button on mobile for better touch
                   background: '#5940A8 !important',
                   color: '#ffffff',
+                  fontSize: { xs: '16px', sm: 'inherit' },  // Larger text on mobile
                   '&:hover': {
                     background: '#432D8B !important',
                   },

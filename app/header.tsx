@@ -17,7 +17,7 @@ export default function Header() {
         {/* Website title */}
         <h1 className="text-xl font-semibold">
             <a href="/">
-                NeuroLiving
+              Airoh
             </a>
         </h1>
         {/* Navigation menu */}

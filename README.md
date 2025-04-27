@@ -1,10 +1,12 @@
-# AI Therapist
+# Airoh - AI Therapist
 
 An innovative AI-powered therapy platform designed to provide accessible mental health support and guidance.
 
+![](public/Airoh.gif)
+
 ## Description
 
-AI Therapist is a web-based application that leverages artificial intelligence to provide supportive conversations and mental health resources to users. The platform offers a safe, confidential space for users to discuss their thoughts and feelings while receiving empathetic responses and practical guidance.
+This is a web-based application that leverages artificial intelligence to provide supportive conversations and mental health resources to users. The platform offers a safe, confidential space for users to discuss their thoughts and feelings while receiving empathetic responses and practical guidance.
 
 ## Features
 

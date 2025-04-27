@@ -41,7 +41,7 @@ export default function RootLayout({
           <ClerkProvider>
             <SignedOut>
               <div className="flex flex-col items-center justify-center min-h-screen bg-background">
-                <h1 className="text-4xl font-bold mb-8 text-primary">Welcome to NeuroLiving</h1>
+                <h1 className="text-4xl font-bold mb-8 text-primary">Welcome to Airoh</h1>
                 <SignInButton />
               </div>
             </SignedOut>

@@ -65,13 +65,6 @@ const goals = [
   },
 ] as const
 
-const mentalHealthFrequency = [
-  { id: "not_at_all", label: "Not at all" },
-  { id: "several_days", label: "Several days" },
-  { id: "more_than_half", label: "More than half the days" },
-  { id: "nearly_every_day", label: "Nearly every day" },
-] as const
-
 export const formSchema = z.object({
   goals: z.array(z.string()).min(1, { message: "Please select at least one goal" }),
   productivity_impact: z.number().min(0).max(7),
@@ -84,27 +77,37 @@ export const formSchema = z.object({
 export default function ProfileForm() {
   // 1. Define your form.
   const [page, setPage] = useState(1)
+  const [mentalHealthFrequency, setMentalHealthFrequency] = useState([
+    { id: "not_at_all", label: "Not at all" },
+    { id: "several_days", label: "Several days" },
+    { id: "more_than_half", label: "More than half the days" },
+    { id: "nearly_every_day", label: "Nearly every day" },
+  ])
+  const [formValues, setFormValues] = useState({
+    goals: [] as string[],
+    productivity_impact: 0,
+    work_missed: 0,
+    relationship_issues: 0,
+    feeling_down: "",
+    userId: "",
+  })
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      goals: [],
-      productivity_impact: 0,
-      work_missed: 0,
-      relationship_issues: 0,
-      feeling_down: "",
-      userId: "",
-    },
+    defaultValues: formValues,
   })
   const router = useRouter()
  
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
+    setFormValues(values)
     console.log(values)
 
-
     await onboardingFormSubmit(values);
+    
+    // Store form data in sessionStorage before redirecting
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('onboardingData', JSON.stringify(values));
+    }
 
     router.push('/chat')
   }
@@ -144,7 +147,7 @@ export default function ProfileForm() {
                   render={({ field }) => (
                     <FormItem className="animate-fadeIn">
                       <FormLabel className="text-xl font-semibold mb-6">
-                        What are some goals you would like to achieve while using Neuroliving?
+                        What are some goals you would like to achieve while using Airoh?
                       </FormLabel>
                       <div className="space-y-4 mt-4">
                         {goals.map((item) => (
