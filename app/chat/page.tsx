@@ -5,6 +5,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { Box, Typography, Paper, TextField, Button, Container, CssBaseline } from '@mui/material';
 import axios from "axios"; // Add axios for API calls
 // import { Pinecone } from '@pinecone-database/pinecone';
+import { promptData } from "@/app/chat/knowledge";
 
 
 const theme = createTheme({
@@ -64,6 +65,8 @@ function getPrompt(){
     : null;
   const userData = onboardingData ? JSON.parse(onboardingData) : {};
 
+  
+
   const prompt0 = `You are Airoh, an AI therapist designed to provide compassionate and personalized mental health support.
     Give 1 line answers, not asking for too much information at once, break them down.
     Before starting the conversation, here is the user's onboarding information:
@@ -73,21 +76,26 @@ function getPrompt(){
     - Relationship Issues: ${userData.relationship_issues || 0} days
     - Feeling Down Frequency: ${userData.feeling_down || 'Not specified'}
 
+    Neuroscience information:
+    `+
+    promptData+
+    `
+    Note:
     Your goal is to create a safe and supportive space for the user. Start the conversation slowly, 
     asking one question at a time to encourage thoughtful and detailed responses.`;
 
-  const prompt = "You are Airoh, an AI therapist designed to support users with mental health. "+
-    "Give 1 line answers , not asking for too much information at once, break them down."+
+  // const prompt = "You are Airoh, an AI therapist designed to support users with mental health. "+
+  //   "Give 1 line answers , not asking for too much information at once, break them down."+
 
 
-    "Your key functionalities are:"
-    "Help User Calm Down: Guide users through breathing exercises or mindfulness techniques to calm them when they feel stressed or overwhelmed."+
-    "Journal: Encourage users to express their feelings and thoughts through journaling. Provide prompts to help them start and support them in reflecting on their emotions."+
-    "Rant: Let users express their frustrations freely. Offer a safe, non-judgmental space for them to vent about anything on their mind."+
-    "Mental Health from a Neuroscience Perspective: Provide insights about the brain and how emotions, stress, and mental health issues affect the body and mind, from a neuroscience perspective."+
-    "You should be empathetic, concise, and clear in your responses. Always ensure to ask the user if they have followed the instructions before proceeding to the next step. "+
-    "If they do not understand or need clarification, explain in simple terms. "+
-    "Your tone is calm, supportive, and non-judgmental. Always encourage users to take care of their mental health."
+  //   "Your key functionalities are:"
+  //   "Help User Calm Down: Guide users through breathing exercises or mindfulness techniques to calm them when they feel stressed or overwhelmed."+
+  //   "Journal: Encourage users to express their feelings and thoughts through journaling. Provide prompts to help them start and support them in reflecting on their emotions."+
+  //   "Rant: Let users express their frustrations freely. Offer a safe, non-judgmental space for them to vent about anything on their mind."+
+  //   "Mental Health from a Neuroscience Perspective: Provide insights about the brain and how emotions, stress, and mental health issues affect the body and mind, from a neuroscience perspective."+
+  //   "You should be empathetic, concise, and clear in your responses. Always ensure to ask the user if they have followed the instructions before proceeding to the next step. "+
+  //   "If they do not understand or need clarification, explain in simple terms. "+
+  //   "Your tone is calm, supportive, and non-judgmental. Always encourage users to take care of their mental health."
 
     // const prompt2=      //content: "You are a compassionate and helpful mental health expert called Maya in the app NeuroLiving by Dr. Sid Warrier, India's top neuroscientist, providing users with emotional support and practical advice."+
     //       "Your answers are warm, but with a deep knowledge of Neuroscience."+

@@ -1,49 +1,42 @@
-export const data = ` 
+const data1 = ` 
 1. The 6 Pillars of NeuroMastery
 Each pillar represents a core aspect of wellbeing, contributing to holistic health. Below are definitions, examples, and associated identities:
 
 1.1 Physical Wellbeing
 Definition: Health of the body through physical care.
-
 Examples: Fitness, Diet, Sleep.
-
 Identity: "Physical identity" (e.g., exercise routines, nutritional habits).
 
 1.2 Professional Wellbeing
 Definition: Satisfaction and growth in career/work.
-
 Examples: Job satisfaction, career status, skill development.
-
 Identity: "Professional identity" (e.g., role clarity, workplace achievements).
 
 1.3 Personal Wellbeing
 Definition: Fulfillment through personal interests and passions.
-
 Examples: Hobbies, creative pursuits, self-care.
-
 Identity: "Personal identity" (e.g., values, self-expression).
 
 1.4 Social Wellbeing
 Definition: Quality of relationships and social connections.
-
 Examples: Family, friends, partner, community involvement.
-
 Identity: "Social identity" (e.g., sense of belonging, social roles).
 
 1.5 Financial Wellbeing
 Definition: Security and management of financial resources.
-
 Examples: Assets, investments, budgeting.
-
 Identity: "Financial identity" (e.g., financial goals, debt management).
 
 1.6 Spiritual Wellbeing
 Definition: Connection to purpose, beliefs, or higher meaning.
-
 Examples: Meditation, religious practices, ethical alignment.
-
 Identity: "Spiritual identity" (e.g., life purpose, moral compass).
 
+
+
+`;
+
+const data2 = ` 
 2. How Stress Works in the Body
 Stress activates the nervous system in hierarchical stages:
 
@@ -67,6 +60,12 @@ Sympathetic Nervous System (SNS): "War mode" (e.g., increased heart rate, adrena
 
 Parasympathetic Nervous System (PNS): "Peace mode" (e.g., rest, digestion).
 
+
+
+
+
+`;
+const data3 = ` 
 3. Performance-Stress Relationship
 3.1 Allostatic Load (Performance-Stress Graph)
 Optimum Zone: Balanced stress for peak performance.
@@ -84,6 +83,12 @@ Balance: Stress ≈ Resilience (1:1 line).
 
 Resilience Pillars: Professional, Financial, Physical, Social, Personal, Spiritual.
 
+
+
+
+
+`;
+const data4 = ` 
 4. Key AI Therapist Guidelines
 Assess Pillars: Identify imbalances in the users 6 pillars (e.g., poor sleep → Physical Wellbeing).
 
@@ -92,4 +97,12 @@ Stress Diagnosis: Determine if stress is due to SNS activation (overload) or PNS
 Resilience Building: Recommend actions based on weak pillars (e.g., financial planning for Financial Wellbeing).
 
 Graph Interpretation: Use the Stress-Resilience Graph to visualize users state and guide interventions.
+
+
+
+
+
 `;
+
+export const data = data1+data2+data3+data4;
+export const promptData = data1+data2;
