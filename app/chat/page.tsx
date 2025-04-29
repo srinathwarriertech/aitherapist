@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from "react";
 import {Message, getGroqChatCompletion, getGroqResponse} from "./actions"
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { Box, Typography, Paper, TextField, Button, Container, CssBaseline } from '@mui/material';
+import ElephantAvatar from '../../components/ui/ElephantAvatar';
 import axios from "axios"; // Add axios for API calls
 // import { Pinecone } from '@pinecone-database/pinecone';
 import { promptData } from "@/app/chat/knowledge";
@@ -248,6 +249,7 @@ export default function Chatbot() {
                 sx={{ 
                   display: 'flex', 
                   justifyContent: message.role === 'user' ? 'flex-end' : 'flex-start',
+                  alignItems: 'flex-end',
                   mb: 2,
                   opacity: 1,
                   transform: 'translateY(0)',
@@ -264,6 +266,11 @@ export default function Chatbot() {
                   },
                 }}
               >
+                {message.role === 'assistant' && (
+                  <Box sx={{ mr: 1, display: 'flex', alignItems: 'flex-end' }}>
+                    <ElephantAvatar size={40} />
+                  </Box>
+                )}
                 <Paper 
                   elevation={0}
                   sx={{ 
