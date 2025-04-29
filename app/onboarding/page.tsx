@@ -6,7 +6,8 @@ import { z } from "zod"
 import { useState } from "react"
 import { createClient } from '@supabase/supabase-js';
 import { useRouter } from "next/navigation"
-import { onboardingFormSubmit} from './actions'
+import { onboardingFormSubmit } from './actions'
+import { processOnboardingResponses } from './onboardingAlgorithm'
 
 
 import { Button } from "@/components/ui/button"
@@ -66,7 +67,37 @@ const goals = [
 ] as const
 
 export const formSchema = z.object({
+  // Demographics
+  age: z.number().min(10).max(120),
+  gender: z.string().optional(),
+  occupation: z.string().optional(),
+  relationshipStatus: z.string().optional(),
+
+  // Presenting Concerns
+  presentingConcerns: z.array(z.string()).min(1, { message: "Please select at least one concern" }),
+  emotionalState: z.number().min(1).max(10),
+  stressFrequency: z.enum(["Never", "Rarely", "Sometimes", "Often", "Always"]),
+
+  // Mental Health History
+  priorTherapy: z.enum(["Yes", "No", "Prefer not to say"]),
+  medication: z.enum(["Yes", "No", "Prefer not to say"]),
+  pastDiagnosis: z.string().optional(),
+
+  // Wellbeing & Lifestyle
+  sleepQuality: z.enum(["Poor", "Fair", "Good", "Excellent"]),
+  appetite: z.enum(["Decreased", "Normal", "Increased"]),
+  support: z.enum(["Yes", "No", "Somewhat"]),
+  exerciseFrequency: z.enum(["Never", "Occasionally", "Regularly"]),
+
+  // Goals & Preferences
   goals: z.array(z.string()).min(1, { message: "Please select at least one goal" }),
+  preferredSupport: z.enum(["Chat", "Self-help resources", "Both"]),
+
+  // Safety Screening
+  selfHarm: z.enum(["Yes", "No", "Prefer not to say"]),
+  crisisHelp: z.enum(["Yes", "No"]).optional(),
+
+  // Existing fields
   productivity_impact: z.number().min(0).max(7),
   work_missed: z.number().min(0).max(7),
   relationship_issues: z.number().min(0).max(7),
@@ -85,14 +116,38 @@ export default function ProfileForm() {
     { id: "more_than_half", label: "More than half the days" },
     { id: "nearly_every_day", label: "Nearly every day" },
   ])
-  const [formValues, setFormValues] = useState({
-    goals: [] as string[],
-    productivity_impact: 0,
-    work_missed: 0,
-    relationship_issues: 0,
-    feeling_down: "",
-    userId: "",
-  })
+  const [formValues, setFormValues] = useState<z.infer<typeof formSchema>>({
+  // Demographics
+  age: 25,
+  gender: '',
+  occupation: '',
+  relationshipStatus: '',
+  // Presenting Concerns
+  presentingConcerns: [],
+  emotionalState: 5,
+  stressFrequency: 'Sometimes' as 'Never' | 'Rarely' | 'Sometimes' | 'Often' | 'Always',
+  // Mental Health History
+  priorTherapy: 'No' as 'Yes' | 'No' | 'Prefer not to say',
+  medication: 'No' as 'Yes' | 'No' | 'Prefer not to say',
+  pastDiagnosis: '',
+  // Wellbeing & Lifestyle
+  sleepQuality: 'Good' as 'Poor' | 'Fair' | 'Good' | 'Excellent',
+  appetite: 'Normal' as 'Decreased' | 'Normal' | 'Increased',
+  support: 'Yes' as 'Yes' | 'No' | 'Somewhat',
+  exerciseFrequency: 'Occasionally' as 'Never' | 'Occasionally' | 'Regularly',
+  // Goals & Preferences
+  goals: [] as string[],
+  preferredSupport: 'Chat' as 'Chat' | 'Self-help resources' | 'Both',
+  // Safety Screening
+  selfHarm: 'No' as 'Yes' | 'No' | 'Prefer not to say',
+  crisisHelp: 'No' as 'Yes' | 'No',
+  // Existing fields
+  productivity_impact: 0,
+  work_missed: 0,
+  relationship_issues: 0,
+  feeling_down: '',
+  userId: '',
+})
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: formValues,
@@ -101,11 +156,19 @@ export default function ProfileForm() {
  
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    setFormValues(values)
-    console.log(values)
-    setIsNavigating(true);
-    
     try {
+      console.log("Inside onSubmit", values)
+      setFormValues({
+        ...values,
+        gender: values.gender ?? '',
+        occupation: values.occupation ?? '',
+        relationshipStatus: values.relationshipStatus ?? '',
+        pastDiagnosis: values.pastDiagnosis ?? '',
+        feeling_down: values.feeling_down ?? '',
+        userId: values.userId ?? '',
+      })
+      console.log(values)
+      setIsNavigating(true);
       const result = await onboardingFormSubmit(values);
       
       if (!result.success) {
@@ -113,9 +176,13 @@ export default function ProfileForm() {
         return;
       }
       
-      // Store form data in sessionStorage before redirecting
+      // Process onboarding responses to generate result sections
+      const resultSections = processOnboardingResponses(values);
+
+      // Store form data and results in sessionStorage before redirecting
       if (typeof window !== 'undefined') {
         sessionStorage.setItem('onboardingData', JSON.stringify(values));
+        sessionStorage.setItem('onboardingResults', JSON.stringify(resultSections));
       }
       
       router.push('/results')
