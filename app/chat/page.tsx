@@ -214,7 +214,7 @@ export default function Chatbot() {
                 gap: 1,
               }}
             >
-              Airoh
+              Talk to Airoh
             </Typography>
           </Box>
 

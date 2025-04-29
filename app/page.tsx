@@ -1,10 +1,19 @@
+'use client';
+
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
+import { useUser } from '@clerk/nextjs';
+
 export default function Home() {
+  const { user, isLoaded } = useUser();
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-background">
-      <h1 className="text-4xl font-bold mb-8 text-primary">Welcome to Airoh</h1>
+      {isLoaded && user ? (
+        <h1 className="text-4xl font-normal mb-8 text-primary">Hi {user.firstName}, Welcome to Airoh</h1>
+      ) : (
+        <h1 className="text-4xl font-normal mb-8 text-primary">Welcome to Airoh</h1>
+      )}
       <div className="space-x-4">
         {/* <Button asChild>
           <Link href="/employee/login">Employee Login</Link>

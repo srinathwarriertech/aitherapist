@@ -118,7 +118,7 @@ export default function ProfileForm() {
         sessionStorage.setItem('onboardingData', JSON.stringify(values));
       }
       
-      router.push('/chat')
+      router.push('/results')
     } catch (error) {
       console.error('Submission error:', error);
       setIsNavigating(false);
@@ -137,8 +137,8 @@ export default function ProfileForm() {
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12 relative">
       {isNavigating && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-white bg-opacity-80">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-600 border-solid"></div>
-          <span className="ml-4 text-xl text-blue-700 font-semibold">Redirecting...</span>
+          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-[#5940A8] border-solid"></div>
+          <span className="ml-4 text-xl font-semibold text-[#5940A8]">Generating Care Plan...</span>
         </div>
       )}
       <div className="max-w-2xl mx-auto p-8 bg-white rounded-xl shadow-lg">
