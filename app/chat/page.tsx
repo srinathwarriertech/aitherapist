@@ -115,37 +115,69 @@ export default function Chatbot() {
       content:getPrompt()
     },
   ]);
+  // State for quick replies (suggestions)
+  const [quickReplies, setQuickReplies] = useState<string[]>([]);
+  // Loading state for typing animation
+  const [loading, setLoading] = useState(false);
   
   // Function to handle sending user message and receiving chatbot response
-  const handleSendMessage = async () => {
-    if (!userInput.trim()) return;
+  const handleSendMessage = async (inputOverride?: string) => {
+    const input = typeof inputOverride === 'string' ? inputOverride : userInput;
+    if (!input.trim()) return;
 
-    const userMessage: Message = { role: "user", content: userInput };
+    const userMessage: Message = { role: "user", content: input };
 
     // Update conversation with the user's message
     const updatedMessages: Message[] = [...messages, userMessage];
     setMessages(updatedMessages);
     setUserInput(""); // Clear input field
+    setQuickReplies([]); // Clear quick replies while waiting for response
+    setLoading(true); // Show typing animation
 
     try {
       // Get chatbot response
-      //const chatCompletion = await getGroqChatCompletion(updatedMessages);
       let chatCompletion = await getGroqResponse(updatedMessages);
       if(chatCompletion.startsWith("<think>")){
         chatCompletion = chatCompletion.split("</think>\n\n")[1];
       }
+      let responseText = chatCompletion;
+      let suggestions: string[] = [];
+      // Try to extract and parse JSON from markdown code block, inline JSON, or raw JSON
+      try {
+        // Try code block first
+        const match = chatCompletion.match(/```json\s*([\s\S]*?)```/i) || chatCompletion.match(/```\s*([\s\S]*?)```/i);
+        let jsonString = '';
+        if (match) {
+          jsonString = match[1].trim();
+        } else {
+          // Try to extract a JSON object anywhere in the string
+          const objMatch = chatCompletion.match(/{[\s\S]*?}/);
+          if (objMatch) {
+            jsonString = objMatch[0];
+          }
+        }
+        if (jsonString) {
+          const parsed = JSON.parse(jsonString);
+          if (parsed.response && Array.isArray(parsed.suggestions)) {
+            responseText = parsed.response;
+            suggestions = parsed.suggestions;
+          }
+        }
+      } catch (e) {
+        // fallback: treat as plain text
+      }
       const botMessage: Message = {
         role: "assistant",
-        //content: chatCompletion.choices[0]?.message?.content || "Sorry, I couldn't process that.",
-        content: chatCompletion+"" || "Sorry, I couldn't process that.",
+        content: responseText || "Sorry, I couldn't process that.",
       };
-      console.log("Response value:"+chatCompletion);
-
-      // Update conversation with bot response
       setMessages([...updatedMessages, botMessage]);
+      setQuickReplies(suggestions);
+      setLoading(false); // Hide typing animation
     } catch (error) {
       console.error("Error fetching chatbot response:", error);
       setMessages([...updatedMessages, { role: "assistant", content: "Something went wrong. Please try again later." }]);
+      setQuickReplies([]);
+      setLoading(false); // Hide typing animation
     }
   };
 
@@ -244,66 +276,149 @@ export default function Chatbot() {
             },
           }}>
             {messages.slice(1).map((message, index) => (
-              <Box 
-                key={index} 
-                sx={{ 
-                  display: 'flex', 
-                  justifyContent: message.role === 'user' ? 'flex-end' : 'flex-start',
-                  alignItems: 'flex-end',
-                  mb: 2,
-                  opacity: 1,
-                  transform: 'translateY(0)',
-                  animation: 'fadeIn 0.3s ease-in-out',
-                  '@keyframes fadeIn': {
-                    from: {
-                      opacity: 0,
-                      transform: 'translateY(10px)',
-                    },
-                    to: {
-                      opacity: 1,
-                      transform: 'translateY(0)',
-                    },
-                  },
-                }}
-              >
-                {message.role === 'assistant' && (
-                  <Box sx={{ mr: 1, display: 'flex', alignItems: 'flex-end' }}>
-                    <ElephantAvatar size={40} />
-                  </Box>
-                )}
-                <Paper 
-                  elevation={0}
+              <React.Fragment key={index}>
+                <Box 
                   sx={{ 
-                    p: 2,
-                    maxWidth: '70%',
-                    backgroundColor: message.role === 'user' ? 'primary.main' : '#fff',
-                    borderRadius: message.role === 'user' ? '20px 20px 5px 20px' : '20px 20px 20px 5px',
-                    boxShadow: message.role === 'user' 
-                      ? '0 2px 12px rgba(89, 64, 168, 0.2)'
-                      : '0 2px 12px rgba(0, 0, 0, 0.08)',
-                    transition: 'all 0.2s ease-in-out',
-                    '&:hover': {
-                      transform: 'translateY(-1px)',
-                      boxShadow: message.role === 'user' 
-                        ? '0 4px 16px rgba(89, 64, 168, 0.3)'
-                        : '0 4px 16px rgba(0, 0, 0, 0.12)',
+                    display: 'flex', 
+                    justifyContent: message.role === 'user' ? 'flex-end' : 'flex-start',
+                    alignItems: 'flex-end',
+                    mb: 2,
+                    opacity: 1,
+                    transform: 'translateY(0)',
+                    animation: 'fadeIn 0.3s ease-in-out',
+                    '@keyframes fadeIn': {
+                      from: {
+                        opacity: 0,
+                        transform: 'translateY(10px)',
+                      },
+                      to: {
+                        opacity: 1,
+                        transform: 'translateY(0)',
+                      },
                     },
                   }}
                 >
-                  <Typography 
-                    variant="body1" 
+                  {message.role === 'assistant' && (
+                    <Box sx={{ mr: 1, display: 'flex', alignItems: 'flex-end' }}>
+                      {/* <ElephantAvatar size={40} /> */}
+                      <div className="h-12 w-12 rounded-full bg-white flex items-center justify-center overflow-hidden shadow">
+                        <img src="/elephant-icon.png" className="h-10 w-10 object-cover" />
+                      </div>
+                    </Box>
+                  )}
+                  <Paper 
+                    elevation={0}
                     sx={{ 
-                      color: message.role === 'user' ? '#fff' : '#333',
-                      fontWeight: 400,
-                      lineHeight: 1.6,
-                      whiteSpace: "pre-line"
+                      p: 2,
+                      maxWidth: '70%',
+                      backgroundColor: message.role === 'user' ? 'primary.main' : '#fff',
+                      borderRadius: message.role === 'user' ? '20px 20px 5px 20px' : '20px 20px 20px 5px',
+                      boxShadow: message.role === 'user' 
+                        ? '0 2px 12px rgba(89, 64, 168, 0.2)'
+                        : '0 2px 12px rgba(0, 0, 0, 0.08)',
+                      transition: 'all 0.2s ease-in-out',
+                      '&:hover': {
+                        transform: 'translateY(-1px)',
+                        boxShadow: message.role === 'user' 
+                          ? '0 4px 16px rgba(89, 64, 168, 0.3)'
+                          : '0 4px 16px rgba(0, 0, 0, 0.12)',
+                      },
                     }}
                   >
-                    {message.content}
-                  </Typography>
-                </Paper>
-              </Box>
+                    <Typography 
+                      variant="body1" 
+                      sx={{ 
+                        color: message.role === 'user' ? '#fff' : '#333',
+                        fontWeight: 400,
+                        lineHeight: 1.6,
+                        whiteSpace: "pre-line"
+                      }}
+                    >
+                      {message.content}
+                    </Typography>
+                  </Paper>
+                </Box>
+                {/* Quick Replies: show only after the latest assistant message */}
+                {index === messages.slice(1).length - 1 && messages[messages.length - 1].role === 'assistant' && quickReplies.length > 0 && (
+                  <Box sx={{ display: 'flex', gap: 1, mt: 1, ml: 6 }}>
+                    {quickReplies.map((reply, idx) => (
+  <Button
+    key={idx}
+    variant="outlined"
+    color="primary"
+    size="small"
+    sx={{
+      borderRadius: '20px',
+      textTransform: 'none',
+      fontWeight: 500,
+      borderColor: '#5940A8',
+      color: '#5940A8',
+      backgroundColor: '#fff',
+      '&:hover': {
+        backgroundColor: '#f5f0ff',
+        borderColor: '#432D8B',
+        color: '#432D8B'
+      }
+    }}
+    onClick={() => handleSendMessage(reply)}
+  >
+    {reply}
+  </Button>
+))}
+                  </Box>
+                )}
+              </React.Fragment>
             ))}
+            {/* Typing animation while waiting for response */}
+            {loading && (
+              <Box sx={{ display: 'flex', alignItems: 'flex-end', mb: 2 }}>
+                <Box sx={{ mr: 1, display: 'flex', alignItems: 'flex-end' }}>
+                  <div className="h-12 w-12 rounded-full bg-white flex items-center justify-center overflow-hidden shadow">
+                    <img src="/elephant-icon.png" className="h-10 w-10 object-cover" />
+                  </div>
+                </Box>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 2,
+                    maxWidth: '70%',
+                    backgroundColor: '#fff',
+                    borderRadius: '20px 20px 20px 5px',
+                    boxShadow: '0 2px 12px rgba(0, 0, 0, 0.08)',
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                >
+                  <span style={{ display: 'inline-block', minWidth: 40 }}>
+                    <span className="typing-dot" />
+                    <span className="typing-dot" />
+                    <span className="typing-dot" />
+                  </span>
+                </Paper>
+                <style>{`
+                  .typing-dot {
+                    display: inline-block;
+                    width: 8px;
+                    height: 8px;
+                    margin: 0 2px;
+                    background: #5940A8;
+                    border-radius: 50%;
+                    opacity: 0.6;
+                    animation: typing-bounce 1.2s infinite both;
+                  }
+                  .typing-dot:nth-child(2) {
+                    animation-delay: 0.2s;
+                  }
+                  .typing-dot:nth-child(3) {
+                    animation-delay: 0.4s;
+                  }
+                  @keyframes typing-bounce {
+                    0%, 80%, 100% { transform: scale(0.8); opacity: 0.6; }
+                    40% { transform: scale(1.2); opacity: 1; }
+                  }
+                `}</style>
+              </Box>
+            )}
             <div ref={messagesEndRef} />
           </Box>
 
@@ -350,7 +465,7 @@ export default function Chatbot() {
               <Button
                 disableElevation
                 variant="contained"
-                onClick={handleSendMessage}
+                onClick={() => handleSendMessage()}
                 sx={{
                   minWidth: { xs: '100%', sm: '120px' },  // Full width on mobile
                   minHeight: { xs: '48px', sm: '56px' },  // Taller button on mobile for better touch

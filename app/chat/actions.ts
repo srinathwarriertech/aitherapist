@@ -71,7 +71,9 @@ export async function getGroqResponse(messages: Message[]) {
         content: `Answer using ONLY this knowledge base:
         ${knowledge}
         
-        If no relevant information exists, say "I need to consult my knowledge base to answer that properly."`
+        If no relevant information exists, say "I need to consult my knowledge base to answer that properly."
+        
+        After your main response, provide 3 short suggested replies the user might want to say next, as a JSON object with 'response' (your main reply) and 'suggestions' (an array of 3 strings). Example: {"response": "Here is your answer.", "suggestions": ["Yes, tell me more.", "No, I have another question.", "Can you explain differently?"]}`
       }
     ]
   });
