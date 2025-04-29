@@ -3,11 +3,12 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { createClient } from '@supabase/supabase-js';
 import { useRouter } from "next/navigation"
 import { onboardingFormSubmit } from './actions'
 import { processOnboardingResponses } from './onboardingAlgorithm'
+import { useUser } from "@clerk/nextjs";
 
 
 import { Button } from "@/components/ui/button"
@@ -74,7 +75,6 @@ export const formSchema = z.object({
   relationshipStatus: z.string().optional(),
 
   // Presenting Concerns
-  presentingConcerns: z.array(z.string()).min(1, { message: "Please select at least one concern" }),
   emotionalState: z.number().min(1).max(10),
   stressFrequency: z.enum(["Never", "Rarely", "Sometimes", "Often", "Always"]),
 
@@ -106,6 +106,7 @@ export const formSchema = z.object({
 })
 
 export default function ProfileForm() {
+  const { isLoaded, isSignedIn, user } = useUser();
   // 1. Define your form.
   const [isNavigating, setIsNavigating] = useState(false);
   // 1. Define your form.
@@ -122,8 +123,7 @@ export default function ProfileForm() {
   gender: '',
   occupation: '',
   relationshipStatus: '',
-  // Presenting Concerns
-  presentingConcerns: [],
+  
   emotionalState: 5,
   stressFrequency: 'Sometimes' as 'Never' | 'Rarely' | 'Sometimes' | 'Often' | 'Always',
   // Mental Health History
@@ -150,8 +150,11 @@ export default function ProfileForm() {
 })
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: formValues,
-  })
+    defaultValues: {
+      ...formValues,
+      userId: user?.id || "",
+    },
+  });
   const router = useRouter()
  
   // 2. Define a submit handler.
@@ -185,6 +188,8 @@ export default function ProfileForm() {
         sessionStorage.setItem('onboardingResults', JSON.stringify(resultSections));
       }
       
+      // Reset the form state so it works on next visit
+      form.reset();
       router.push('/results')
     } catch (error) {
       console.error('Submission error:', error);
@@ -200,6 +205,32 @@ export default function ProfileForm() {
     setPage(prev => prev - 1)
   }
 
+  // Scroll to first error on validation fail
+  // useEffect(() => {
+  //   if (Object.keys(form.formState.errors).length > 0) {
+  //     const errorField = Object.keys(form.formState.errors)[0];
+  //     const errorElement = document.querySelector(`[name="${errorField}"]`);
+  //     if (errorElement) {
+  //       errorElement.scrollIntoView({ behavior: "smooth", block: "center" });
+  //     }
+  //   }
+  // }, [form.formState.errors]);
+
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <span className="text-xl">Loading user...</span>
+      </div>
+    );
+  }
+  if (!isSignedIn || !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <span className="text-xl text-red-600">You must be signed in to continue.</span>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12 relative">
       {isNavigating && (
@@ -209,6 +240,19 @@ export default function ProfileForm() {
         </div>
       )}
       <div className="max-w-2xl mx-auto p-8 bg-white rounded-xl shadow-lg">
+        {/* Global error summary */}
+        {Object.keys(form.formState.errors).length > 0 && (
+          <div className="mb-4 p-4 bg-red-100 border border-red-400 rounded text-red-700">
+            <strong>Please fix the following errors:</strong>
+            <ul className="list-disc ml-6 mt-2">
+              {Object.entries(form.formState.errors).map(([field, error]) => (
+                <li key={field}>
+                  {error?.message || `${field} is required`}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
         {/* Progress bar */}
         <div className="mb-8">
           <div className="flex justify-between mb-2 text-sm text-gray-600">
@@ -224,7 +268,7 @@ export default function ProfileForm() {
         </div>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <form onSubmit={form.handleSubmit((values) => { console.log('Form submit triggered', values); return onSubmit(values); })} className="space-y-8">
             <div className="min-h-[400px]"> {/* Fixed height container for form content */}
               {page === 1 && (
                 <FormField
@@ -355,8 +399,8 @@ export default function ProfileForm() {
                       </FormItem>
                     )}
                   />
-                  
-                  
+
+
 
                 </div>
               )}

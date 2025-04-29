@@ -100,12 +100,23 @@ export function processOnboardingResponses(responses: OnboardingResponse): Resul
   // Add more sections as needed based on scores/tags
 
   // Example: Add goal-based sections
+  // Map goal IDs to user-friendly labels
+  const goalLabels: Record<string, string> = {
+    feel_happier: 'Feel happier again',
+    regain_interest: 'Regain interest in activities I used to enjoy',
+    feel_relaxed: 'Feel more relaxed and in control',
+    improve_sleep: 'Improve my sleep',
+    reduce_alcohol: 'Reduce my use of alcohol',
+    reduce_smoking: 'Reduce my use of smoking, vaping or chew',
+    reduce_drugs: 'Reduce my use of drugs',
+  };
   if (Array.isArray(responses.goals)) {
     responses.goals.forEach((goal: string) => {
+      const label = goalLabels[goal] || goal;
       resultSections.push({
         key: goal.toLowerCase(),
-        title: `Goal: ${goal}`,
-        description: `Here are some ways you can work towards your goal of ${goal.toLowerCase()}.`,
+        title: `Goal: ${label}`,
+        description: `Here are some ways you can work towards your goal: ${label}.`,
       });
     });
   }
