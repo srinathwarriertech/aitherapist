@@ -76,6 +76,8 @@ export const formSchema = z.object({
 
 export default function ProfileForm() {
   // 1. Define your form.
+  const [isNavigating, setIsNavigating] = useState(false);
+  // 1. Define your form.
   const [page, setPage] = useState(1)
   const [mentalHealthFrequency, setMentalHealthFrequency] = useState([
     { id: "not_at_all", label: "Not at all" },
@@ -101,15 +103,26 @@ export default function ProfileForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setFormValues(values)
     console.log(values)
-
-    await onboardingFormSubmit(values);
+    setIsNavigating(true);
     
-    // Store form data in sessionStorage before redirecting
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem('onboardingData', JSON.stringify(values));
+    try {
+      const result = await onboardingFormSubmit(values);
+      
+      if (!result.success) {
+        setIsNavigating(false);
+        return;
+      }
+      
+      // Store form data in sessionStorage before redirecting
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('onboardingData', JSON.stringify(values));
+      }
+      
+      router.push('/chat')
+    } catch (error) {
+      console.error('Submission error:', error);
+      setIsNavigating(false);
     }
-
-    router.push('/chat')
   }
 
   const nextPage = () => {
@@ -121,7 +134,13 @@ export default function ProfileForm() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12 relative">
+      {isNavigating && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-white bg-opacity-80">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-600 border-solid"></div>
+          <span className="ml-4 text-xl text-blue-700 font-semibold">Redirecting...</span>
+        </div>
+      )}
       <div className="max-w-2xl mx-auto p-8 bg-white rounded-xl shadow-lg">
         {/* Progress bar */}
         <div className="mb-8">
