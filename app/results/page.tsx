@@ -2,10 +2,20 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 
-import { processOnboardingResponses, ResultSection } from '../onboarding/onboardingAlgorithm';
+import { processOnboardingResponses, ResultSection, goalLabels } from '../onboarding/onboardingAlgorithm';
 
 import { useUser } from '@clerk/nextjs';
 import { jsPDF } from 'jspdf';
+
+const goalActionDescriptions: Record<string, string> = {
+  feel_happier: "Focus on small moments of joy each day—whether it's a walk, a favorite song, or connecting with a friend. Small positive actions can lift your mood over time.",
+  regain_interest: "Try setting aside a small amount of time each week to revisit an old hobby or activity you once loved. Start with something simple, and notice how it makes you feel.",
+  feel_relaxed: "Practice deep breathing or short mindfulness breaks throughout your day. Taking a few minutes to pause can help you regain a sense of calm and control.",
+  improve_sleep: "Establish a calming bedtime routine and aim to go to bed at the same time each night. Small changes can make a big difference.",
+  reduce_alcohol: "Consider tracking your drinking habits and setting small, achievable goals. Reaching out for support can also make the journey easier.",
+  reduce_smoking: "Try gradually reducing your intake or replacing smoking breaks with a healthy habit. Support groups or helplines can also help you stay on track.",
+  reduce_drugs: "You're not alone—support is available. Consider reaching out to a professional or a trusted person for help, and take one step at a time.",
+};
 
 const ResultsPage = () => {
   const { user, isLoaded } = useUser();
@@ -78,7 +88,8 @@ const ResultsPage = () => {
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(12);
       doc.setTextColor('#333');
-      const lines = doc.splitTextToSize(section.description, pageWidth - 110);
+      const description = goalActionDescriptions[section.id] || section.description;
+      const lines = doc.splitTextToSize(description, pageWidth - 110);
       doc.text(lines, 55, y + 44);
       y += 100;
     });
@@ -113,8 +124,8 @@ const ResultsPage = () => {
             )}
             {sections.map((section, idx) => (
               <div key={idx} className="bg-white rounded-lg p-4 border">
-                <div className="font-medium text-[#7B64C0]">{section.title}</div>
-                <div className="text-gray-500 text-xs mt-2">{section.description}</div>
+                <div className="font-medium text-[#7B64C0]">{goalLabels[section.id] || section.title}</div>
+                <div className="text-gray-500 text-xs mt-2">{goalActionDescriptions[section.id] || section.description}</div>
               </div>
             ))}
           </div>

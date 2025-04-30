@@ -25,9 +25,19 @@ export type OnboardingResponse = {
 };
 
 export type ResultSection = {
-  key: string;
+  id: string; // goal id
   title: string;
   description: string;
+};
+// Map goal IDs to user-friendly labels
+export const goalLabels: Record<string, string> = {
+  feel_happier: 'Feel happier again',
+  regain_interest: 'Regain interest in activities I used to enjoy',
+  feel_relaxed: 'Feel more relaxed and in control',
+  improve_sleep: 'Improve my sleep',
+  reduce_alcohol: 'Reduce my use of alcohol',
+  reduce_smoking: 'Reduce my use of smoking, vaping or chew',
+  reduce_drugs: 'Reduce my use of drugs',
 };
 
 export function processOnboardingResponses(responses: OnboardingResponse): ResultSection[] {
@@ -67,7 +77,7 @@ export function processOnboardingResponses(responses: OnboardingResponse): Resul
   const resultSections: ResultSection[] = [];
   if (tags.includes("crisis")) {
     resultSections.push({
-      key: "crisis",
+      id: "crisis",
       title: "Immediate Support",
       description:
         "It looks like you may need urgent support. Please consider reaching out to a professional or using the resources provided here. Your safety is important!",
@@ -75,7 +85,7 @@ export function processOnboardingResponses(responses: OnboardingResponse): Resul
   }
   if ((scores["stress"] || 0) >= 2) {
     resultSections.push({
-      key: "stress",
+      id: "stress",
       title: "Managing Stress",
       description:
         "You reported experiencing frequent stress. Here are some strategies and resources that may help you manage stress more effectively.",
@@ -83,7 +93,7 @@ export function processOnboardingResponses(responses: OnboardingResponse): Resul
   }
   if ((scores["sleep"] || 0) >= 1) {
     resultSections.push({
-      key: "sleep",
+      id: "sleep",
       title: "Improving Sleep",
       description:
         "Sleep quality can greatly impact your well-being. Explore these tips and resources to help improve your sleep habits.",
@@ -91,7 +101,7 @@ export function processOnboardingResponses(responses: OnboardingResponse): Resul
   }
   if ((scores["isolation"] || 0) >= 1) {
     resultSections.push({
-      key: "isolation",
+      id: "isolation",
       title: "Building Support",
       description:
         "Supportive relationships are important. Consider reaching out to friends, family, or support groups for connection.",
@@ -99,22 +109,12 @@ export function processOnboardingResponses(responses: OnboardingResponse): Resul
   }
   // Add more sections as needed based on scores/tags
 
-  // Example: Add goal-based sections
-  // Map goal IDs to user-friendly labels
-  const goalLabels: Record<string, string> = {
-    feel_happier: 'Feel happier again',
-    regain_interest: 'Regain interest in activities I used to enjoy',
-    feel_relaxed: 'Feel more relaxed and in control',
-    improve_sleep: 'Improve my sleep',
-    reduce_alcohol: 'Reduce my use of alcohol',
-    reduce_smoking: 'Reduce my use of smoking, vaping or chew',
-    reduce_drugs: 'Reduce my use of drugs',
-  };
+
   if (Array.isArray(responses.goals)) {
     responses.goals.forEach((goal: string) => {
       const label = goalLabels[goal] || goal;
       resultSections.push({
-        key: goal.toLowerCase(),
+        id: goal,
         title: `Goal: ${label}`,
         description: `Here are some ways you can work towards your goal: ${label}.`,
       });
