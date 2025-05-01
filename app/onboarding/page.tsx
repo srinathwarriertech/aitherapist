@@ -40,37 +40,6 @@ if (!supabaseUrl || !supabaseAnonKey) {
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 
-const goals = [
-  {
-    id: "feel_happier",
-    label: "Feel happier again",
-  },
-  {
-    id: "regain_interest",
-    label: "Regain interest in activities I used to enjoy",
-  },
-  {
-    id: "feel_relaxed",
-    label: "Feel more relaxed and in control",
-  },
-  {
-    id: "improve_sleep",
-    label: "Improve my sleep",
-  },
-  {
-    id: "reduce_alcohol",
-    label: "Reduce my use of alcohol",
-  },
-  {
-    id: "reduce_smoking",
-    label: "Reduce my use of smoking, vaping or chew",
-  },
-  {
-    id: "reduce_drugs",
-    label: "Reduce my use of drugs",
-  },
-] as const
-
 export const formSchema = z.object({
   // Demographics
   age: z.number().min(10).max(120),
@@ -113,14 +82,7 @@ export default function ProfileForm() {
   const { isLoaded, isSignedIn, user } = useUser();
   // 1. Define your form.
   const [isNavigating, setIsNavigating] = useState(false);
-  // 1. Define your form.
-  const [page, setPage] = useState(1)
-  const [mentalHealthFrequency, setMentalHealthFrequency] = useState([
-    { id: "not_at_all", label: "Not at all" },
-    { id: "several_days", label: "Several days" },
-    { id: "more_than_half", label: "More than half the days" },
-    { id: "nearly_every_day", label: "Nearly every day" },
-  ])
+  
   const [formValues, setFormValues] = useState<z.infer<typeof formSchema>>({
   // Demographics
   age: 25,
@@ -201,14 +163,40 @@ export default function ProfileForm() {
     }
   }
 
-  const [formityValues, setFormityValues] = useState<ReturnOutput<FormityValues> | null>(null);
-  const onReturn = useCallback<OnReturn<FormityValues>>((values) => {
-    setFormityValues(values);
-  }, []);
-
-  if (formityValues) {
-    return <Data data={formityValues} onStart={() => setFormityValues(null)} />;
+  // Remove duplicate router declaration
+const onReturn = useCallback<OnReturn<FormityValues>>(async (values) => {
+  try {
+    // Flatten Formity return output to match backend schema
+    const {
+      goals,
+      productivity_impact,
+      work_missed,
+      relationship_issues,
+      feeling_down
+    } = values;
+    // Compose classic onboarding shape for backend, using defaults for missing fields
+    const onboardingValues = {
+      ...formValues, // use all classic defaults
+      goals,
+      productivity_impact,
+      work_missed,
+      relationship_issues,
+      feeling_down,
+      // userId will be set in onboardingFormSubmit
+    };
+    // Persist to backend
+    const result = await onboardingFormSubmit(onboardingValues);
+    // Generate results for sessionStorage
+    const resultSections = processOnboardingResponses(onboardingValues);
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('onboardingData', JSON.stringify(onboardingValues));
+      sessionStorage.setItem('onboardingResults', JSON.stringify(resultSections));
+    }
+    router.push('/results');
+  } catch (error) {
+    console.error('Formity submission error:', error);
   }
+}, [router]);
 
 
   if (!isLoaded) {
@@ -234,22 +222,13 @@ export default function ProfileForm() {
           <span className="ml-4 text-xl font-semibold text-[#5940A8]">Generating Care Plan...</span>
         </div>
       )}
-      <div className="onboarding-card">
-        {/* Global error summary */}
-        {/* {Object.keys(form.formState.errors).length > 0 && (
-          <div className="mb-4 p-4 bg-black bg-opacity-60 border border-red-400 rounded text-red-500">
-            <strong>Please fix the following errors:</strong>
-            <ul className="list-disc ml-6 mt-2">
-              {Object.entries(form.formState.errors).map(([field, error]) => (
-                <li key={field}>
-                  {error?.message || `${field} is required`}
-                </li>
-              ))}
-            </ul>
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-4 relative">
+        <div className="max-w-2xl mx-auto p-8 bg-white rounded-xl shadow-lg">
+          <div className="onboarding-card">
+            {/* // Add formity multi page Form */}
+            <Formity<FormityValues> schema={schema} onReturn={onReturn} />        
           </div>
-        )} */}
-        {/* // Add formity multi page Form */}
-        <Formity<FormityValues> schema={schema} onReturn={onReturn} />        
+        </div>
       </div>
     </div>
   )

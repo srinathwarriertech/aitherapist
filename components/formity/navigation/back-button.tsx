@@ -18,7 +18,7 @@ export default function BackButton({ onBack }: BackButtonProps) {
       style={{ minWidth: 56, minHeight: 56 }}
       onClick={onBack}
     >
-      <ChevronLeftIcon className="pointer-events-none h-7 w-7 text-white" />
+      <ChevronLeftIcon className="pointer-events-none h-7 w-7 text-black" />
     </button>
   );
 }

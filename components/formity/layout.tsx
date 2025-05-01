@@ -18,15 +18,15 @@ export default function Layout({
   return (
     <div className="relative flex h-full w-full items-center justify-center px-4 py-8">
       <div className="w-full max-w-md shrink-0">
-        {back && <div className="left-4 top-5 bottom-10">{back}</div>}
-        <h1 className="mb-3 text-center text-3xl font-medium text-white top-100">
+        {back && <div className="left-4 top-5 py-4">{back}</div>}
+        <h1 className="mb-3 text-center text-3xl top-100">
           {heading}
         </h1>
-        <p className="mb-6 text-center text-base text-neutral-500">
+        <p className="mb-6 text-center text-base">
           {description}
         </p>
         <div className="scrollbar-hide mb-4 max-h-200 overflow-auto">
-          <div className="space-y-4 pt-2">{fields}</div>
+          <div className="space-y-12 pt-2 py-12">{fields}</div>
         </div>
         {button}
       </div>

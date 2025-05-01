@@ -146,8 +146,8 @@ export const schema: Schema<FormityValues> = [
           onSubmit={onNext}
         >
           <Layout
-            heading="How often have you been bothered by feeling down, depressed, or hopeless?"
-            description="Use the sliders to indicate the number of days (0-7)."
+            heading="In the past week, How often have you been bothered by feeling down, depressed, or hopeless?"
+            description=""
             fields={[
               <Select
                 key="feeling_down"

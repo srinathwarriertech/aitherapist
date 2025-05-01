@@ -47,15 +47,15 @@ export default function CheckboxGroup({
               }
             }}
             className={cn(
-              "flex items-center px-8 py-4 rounded-full border border-white bg-black text-white text-lg font-normal transition-all duration-150 cursor-pointer min-w-[180px] justify-between",
+              "flex items-center px-8 py-4 rounded-full border border-black bg-white text-black text-lg font-normal transition-all duration-150 cursor-pointer min-w-[180px] justify-between",
               "hover:border-[#706cf7] focus:border-[#706cf7]",
-              value.includes(option.value) ? "border-[#706cf7]" : "border-white/40",
+              value.includes(option.value) ? "border-[#706cf7]" : "border-black/40",
               error && "border-red-500",
             )}
           >
             <span>{option.label}</span>
             {value.includes(option.value) && (
-            <CheckIcon className={cn("ml-2 h-6 w-6 text-white")}/>
+            <CheckIcon className={cn("ml-2 h-6 w-6 text-black")}/>
             )}
           </Input>
         ))}

@@ -132,7 +132,7 @@ const ResultsPage = () => {
         </section>
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mt-8">
           <button onClick={handleDownload} className="bg-white border border-[#5940A8] text-[#7B64C0] px-4 py-2 rounded shadow hover:bg-[#CCC6DD]">Download results ↓</button>
-          <button onClick={handleSeePlan} className="bg-[#5940A8] text-white px-6 py-3 rounded shadow hover:bg-[#432D8B] font-semibold">See my personalized care plan</button>
+          <button onClick={handleSeePlan} className="bg-[#5940A8] text-white px-6 py-3 rounded shadow hover:bg-[#432D8B] font-semibold">See my personalized care plan →</button>
         </div>
       </div>
     </div>
