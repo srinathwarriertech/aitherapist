@@ -1,0 +1,164 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Onboarding dark mode styles */
+.onboarding-bg {
+  min-height: 100vh;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+.onboarding-header {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding-top: 2.5rem;
+  display: flex;
+  align-items: flex-start;
+  z-index: 10;
+}
+.onboarding-card {
+  background: transparent;
+  box-shadow: none;
+  border-radius: 2rem;
+  padding: 2.5rem 2rem 2.5rem 2rem;
+  max-width: 700px;
+  margin: 0 auto;
+}
+.formity-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.formity-label {
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 400;
+}
+.formity-input {
+  background: #000;
+  color: #fff;
+  border: 1.5px solid #222;
+  border-radius: 2rem;
+  padding: 1.1rem 1.5rem;
+  font-size: 1.1rem;
+  outline: none;
+  margin-bottom: 0.3rem;
+}
+.formity-input:focus {
+  border-color: #706cf7;
+}
+.formity-input::placeholder {
+  color: #fff;
+  opacity: 0.7;
+}
+.formity-button {
+  width: 100%;
+  background: #706cf7;
+  color: #fff;
+  font-weight: 600;
+  font-size: 1.2rem;
+  border: none;
+  border-radius: 2rem;
+  padding: 1rem 0;
+  margin-top: 1.5rem;
+  cursor: pointer;
+  transition: background 0.18s;
+  box-shadow: 0 2px 8px 0 rgba(122,111,245,0.10);
+}
+.formity-button:hover {
+  background: #5940a8;
+}
+
+@layer base {
+  [inert] ::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Chrome, Safari, Edge, Opera */
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Firefox */
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+
+  input[type="checkbox"] {
+    transition: all 0.2s ease-out;
+  }
+
+  input[type="checkbox"]:hover:not(:checked),
+  input[type="checkbox"]:focus:not(:checked) {
+    transition: all 0.1s ease-in;
+  }
+
+  input[type="checkbox"]:checked {
+    transition: none;
+  }
+
+  pre[class*="language-"] {
+    color: theme("colors.neutral.50");
+  }
+  .token.tag,
+  .token.class-name,
+  .token.selector,
+  .token.selector .class,
+  .token.selector.class,
+  .token.function {
+    color: theme("colors.purple.400");
+  }
+
+  .token.attr-name,
+  .token.keyword,
+  .token.rule,
+  .token.pseudo-class,
+  .token.important {
+    color: theme("colors.neutral.300");
+  }
+
+  .token.module {
+    color: theme("colors.fuchsia.400");
+  }
+
+  .token.attr-value,
+  .token.class,
+  .token.string,
+  .token.property {
+    color: theme("colors.indigo.300");
+  }
+
+  .token.punctuation,
+  .token.attr-equals {
+    color: theme("colors.neutral.500");
+  }
+
+  .token.comment,
+  .token.operator,
+  .token.combinator {
+    color: theme("colors.neutral.400");
+  }
+
+  .language-json .token.property {
+    color: theme("colors.white");
+  }
+}
+
+@layer utilities {
+  /* For Webkit-based browsers (Chrome, Safari and Opera) */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* For IE, Edge and Firefox */
+  .scrollbar-hide {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+}

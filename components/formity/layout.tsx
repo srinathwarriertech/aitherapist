@@ -1,0 +1,35 @@
+import type { ReactNode } from "react";
+
+interface LayoutProps {
+  heading: string;
+  description: string;
+  fields: ReactNode[];
+  button: ReactNode;
+  back?: ReactNode;
+}
+
+export default function Layout({
+  heading,
+  description,
+  fields,
+  button,
+  back,
+}: LayoutProps) {
+  return (
+    <div className="relative flex h-full w-full items-center justify-center px-4 py-8">
+      <div className="w-full max-w-md shrink-0">
+        {back && <div className="left-4 top-5 bottom-10">{back}</div>}
+        <h1 className="mb-3 text-center text-3xl font-medium text-white top-100">
+          {heading}
+        </h1>
+        <p className="mb-6 text-center text-base text-neutral-500">
+          {description}
+        </p>
+        <div className="scrollbar-hide mb-4 max-h-200 overflow-auto">
+          <div className="space-y-4 pt-2">{fields}</div>
+        </div>
+        {button}
+      </div>
+    </div>
+  );
+}

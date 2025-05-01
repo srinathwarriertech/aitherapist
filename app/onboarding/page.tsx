@@ -2,14 +2,17 @@
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import { z } from "zod"
-import { useState, useEffect } from "react"
+import { Values, z } from "zod"
+import { useState, useEffect ,useCallback} from "react"
 import { createClient } from '@supabase/supabase-js';
 import { useRouter } from "next/navigation"
 import { onboardingFormSubmit } from './actions'
 import { processOnboardingResponses } from './onboardingAlgorithm'
 import { useUser } from "@clerk/nextjs";
-
+import { Formity, OnReturn, ReturnOutput } from "@formity/react";
+import { Data } from "@/components/formity";
+import { schema, FormityValues } from "./schema";
+import "./main.css";
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -24,6 +27,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Slider } from "@/components/ui/slider"
+import BackButton from "@/components/formity/navigation/back-button"
 
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -197,24 +201,15 @@ export default function ProfileForm() {
     }
   }
 
-  const nextPage = () => {
-    setPage(prev => prev + 1)
+  const [formityValues, setFormityValues] = useState<ReturnOutput<FormityValues> | null>(null);
+  const onReturn = useCallback<OnReturn<FormityValues>>((values) => {
+    setFormityValues(values);
+  }, []);
+
+  if (formityValues) {
+    return <Data data={formityValues} onStart={() => setFormityValues(null)} />;
   }
 
-  const previousPage = () => {
-    setPage(prev => prev - 1)
-  }
-
-  // Scroll to first error on validation fail
-  // useEffect(() => {
-  //   if (Object.keys(form.formState.errors).length > 0) {
-  //     const errorField = Object.keys(form.formState.errors)[0];
-  //     const errorElement = document.querySelector(`[name="${errorField}"]`);
-  //     if (errorElement) {
-  //       errorElement.scrollIntoView({ behavior: "smooth", block: "center" });
-  //     }
-  //   }
-  // }, [form.formState.errors]);
 
   if (!isLoaded) {
     return (
@@ -232,17 +227,17 @@ export default function ProfileForm() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12 relative">
+    <div className="onboarding-bg">
       {isNavigating && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-white bg-opacity-80">
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80">
           <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-[#5940A8] border-solid"></div>
           <span className="ml-4 text-xl font-semibold text-[#5940A8]">Generating Care Plan...</span>
         </div>
       )}
-      <div className="max-w-2xl mx-auto p-8 bg-white rounded-xl shadow-lg">
+      <div className="onboarding-card">
         {/* Global error summary */}
-        {Object.keys(form.formState.errors).length > 0 && (
-          <div className="mb-4 p-4 bg-red-100 border border-red-400 rounded text-red-700">
+        {/* {Object.keys(form.formState.errors).length > 0 && (
+          <div className="mb-4 p-4 bg-black bg-opacity-60 border border-red-400 rounded text-red-500">
             <strong>Please fix the following errors:</strong>
             <ul className="list-disc ml-6 mt-2">
               {Object.entries(form.formState.errors).map(([field, error]) => (
@@ -252,228 +247,9 @@ export default function ProfileForm() {
               ))}
             </ul>
           </div>
-        )}
-        {/* Progress bar */}
-        <div className="mb-8">
-          <div className="flex justify-between mb-2 text-sm text-gray-600">
-            <span>Step {page} of 3</span>
-            <span>{Math.round((page / 3) * 100)}% Complete</span>
-          </div>
-          <div className="w-full h-2 bg-gray-200 rounded-full">
-            <div 
-              className="h-full bg-blue-500 rounded-full transition-all duration-300 ease-in-out"
-              style={{ width: `${(page / 3) * 100}%` }}
-            />
-          </div>
-        </div>
-
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit((values) => { console.log('Form submit triggered', values); return onSubmit(values); })} className="space-y-8">
-            <div className="min-h-[400px]"> {/* Fixed height container for form content */}
-              {page === 1 && (
-                <FormField
-                  control={form.control}
-                  name="goals"
-                  render={({ field }) => (
-                    <FormItem className="animate-fadeIn">
-                      <FormLabel className="text-xl font-semibold mb-6">
-                        What are some goals you would like to achieve while using Airoh?
-                      </FormLabel>
-                      <div className="space-y-4 mt-4">
-                        {goals.map((item) => (
-                          <div 
-                            key={item.id} 
-                            className="flex items-center space-x-3 p-3 rounded-lg"
-                          >
-                            <Checkbox
-                              checked={field.value?.includes(item.id)}
-                              onCheckedChange={(checked) => {
-                                const updatedValue = checked
-                                  ? [...field.value, item.id]
-                                  : field.value?.filter((value) => value !== item.id)
-                                field.onChange(updatedValue)
-                              }}
-                            />
-                            <FormLabel className="font-normal text-base">
-                              {item.label}
-                            </FormLabel>
-                          </div>
-                        ))}
-                      </div>
-                      <FormMessage className="mt-2 text-red-500" />
-                    </FormItem>
-                  )}
-                />
-              )}
-
-              {page === 2 && (
-                <div className="space-y-6 animate-fadeIn">
-                  <h3 className="text-xl font-semibold mb-6">
-                    In the past week, how many days have physical or mental health problems in your life caused you to...
-                  </h3>
-
-                  {/* Existing slider fields with enhanced styling */}
-                  <FormField
-                    control={form.control}
-                    name="productivity_impact"
-                    render={({ field }) => (
-                      <FormItem className="bg-gray-50 p-4 rounded-lg">
-                        <FormLabel className="text-base font-medium">Be less productive at work</FormLabel>
-                        <FormControl>
-                          <div className="flex flex-col space-y-4 mt-2">
-                            <Slider
-                              min={0}
-                              max={7}
-                              step={1}
-                              value={[field.value]}
-                              onValueChange={([value]) => field.onChange(value)}
-                              className="py-4"
-                            />
-                            <div className="flex justify-between text-sm text-gray-600">
-                              <span>0 days</span>
-                              <span>7 days</span>
-                            </div>
-                          </div>
-                        </FormControl>
-                        <FormDescription className="text-sm font-medium text-blue-600">
-                          Selected: {field.value} days
-                        </FormDescription>
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="work_missed"
-                    render={({ field }) => (
-                      <FormItem className="bg-gray-50 p-4 rounded-lg">
-                        <FormLabel className="text-base font-medium">Miss work or not carry out daily work-related responsibilities</FormLabel>
-                        <FormControl>
-                          <div className="flex flex-col space-y-4 mt-2">
-                            <Slider
-                              min={0}
-                              max={7}
-                              step={1}
-                              value={[field.value]}
-                              onValueChange={([value]) => field.onChange(value)}
-                              className="py-4"
-                            />
-                            <div className="flex justify-between text-sm text-gray-600">
-                              <span>0 days</span>
-                              <span>7 days</span>
-                            </div>
-                          </div>
-                        </FormControl>
-                        <FormDescription className="text-sm font-medium text-blue-600">
-                          Selected: {field.value} days
-                        </FormDescription>
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="relationship_issues"
-                    render={({ field }) => (
-                      <FormItem className="bg-gray-50 p-4 rounded-lg">
-                        <FormLabel className="text-base font-medium">Experience relationship issues with family and/or friends</FormLabel>
-                        <FormControl>
-                          <div className="flex flex-col space-y-4 mt-2">
-                            <Slider
-                              min={0}
-                              max={7}
-                              step={1}
-                              value={[field.value]}
-                              onValueChange={([value]) => field.onChange(value)}
-                              className="py-4"
-                            />
-                            <div className="flex justify-between text-sm text-gray-600">
-                              <span>0 days</span>
-                              <span>7 days</span>
-                            </div>
-                          </div>
-                        </FormControl>
-                        <FormDescription className="text-sm font-medium text-blue-600">
-                          Selected: {field.value} days
-                        </FormDescription>
-                      </FormItem>
-                    )}
-                  />
-
-
-
-                </div>
-              )}
-
-              {page === 3 && (
-                <FormField
-                  control={form.control}
-                  name="feeling_down"
-                  render={({ field }) => (
-                    <FormItem className="space-y-4 animate-fadeIn">
-                      <FormLabel className="text-xl font-semibold">
-                        How often have you been bothered by feeling down, depressed, or hopeless?
-                      </FormLabel>
-                      <div className="space-y-3 mt-4">
-                        {mentalHealthFrequency.map((option) => (
-                          <div 
-                            key={option.id} 
-                            className={`flex items-center space-x-3 p-4 rounded-lg border-2 transition-all cursor-pointer
-                              ${field.value === option.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'}`}
-                            onClick={() => field.onChange(option.id)}
-                          >
-                            <input
-                              type="radio"
-                              className="form-radio h-4 w-4 text-blue-600"
-                              id={option.id}
-                              {...field}
-                              value={option.id}
-                              checked={field.value === option.id}
-                            />
-                            <label htmlFor={option.id} className="text-base font-medium cursor-pointer flex-grow">
-                              {option.label}
-                            </label>
-                          </div>
-                        ))}
-                      </div>
-                      <FormMessage className="text-red-500" />
-                    </FormItem>
-                  )}
-                />
-              )}
-            </div>
-
-            <div className="flex justify-between pt-6 border-t">
-              {page > 1 && (
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={previousPage}
-                  className="px-6"
-                >
-                  ← Previous
-                </Button>
-              )}
-              
-              {page < 3 ? (
-                <Button 
-                  type="button" 
-                  onClick={nextPage}
-                  className="ml-auto px-6"
-                >
-                  Next →
-                </Button>
-              ) : (
-                <Button 
-                  type="submit"
-                  className="ml-auto px-8 bg-blue-600 hover:bg-blue-700"
-                >
-                  Submit
-                </Button>
-              )}
-            </div>
-          </form>
-        </Form>
+        )} */}
+        {/* // Add formity multi page Form */}
+        <Formity<FormityValues> schema={schema} onReturn={onReturn} />        
       </div>
     </div>
   )
