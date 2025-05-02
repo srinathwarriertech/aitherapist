@@ -26,7 +26,7 @@ export default function RadioGroup({
 }: RadioGroupProps) {
   const id = useId();
   return (
-    <Field id={id} label={label} error={error}>
+    <Field id={id} label="" error={error}>
       <HeadlessRadioGroup
         value={value}
         onChange={onChange}
@@ -36,6 +36,7 @@ export default function RadioGroup({
             : "flex flex-row gap-4 mt-2"
         )}
       >
+        <span>{label}</span>
         {options.map((option) => (
           <Radio
             key={option.value}

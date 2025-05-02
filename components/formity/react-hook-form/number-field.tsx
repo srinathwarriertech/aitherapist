@@ -5,9 +5,11 @@ import TextField from "../fields/text-field";
 interface NumberFieldProps {
   name: string;
   label: string;
+  min?: number;
+  max?: number;
 }
 
-export default function NumberField({ name, label }: NumberFieldProps) {
+export default function NumberField({ name, label, min, max }: NumberFieldProps) {
   const { control, formState } = useFormContext();
   const error = formState.errors[name] as { message: string } | undefined;
   return (

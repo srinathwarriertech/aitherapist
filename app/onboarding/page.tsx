@@ -28,7 +28,22 @@ import {
 import { Input } from "@/components/ui/input"
 import { Slider } from "@/components/ui/slider"
 import BackButton from "@/components/formity/navigation/back-button"
+import {
+  goalsOptions,
+  mentalHealthFrequencyOptions,
+  stressFrequencyOptions,
+  priorTherapyOptions,
+  medicationOptions,
+  sleepQualityOptions,
+  appetiteOptions,
+  supportOptions,
+  exerciseFrequencyOptions,
+  preferredSupportOptions,
+  selfHarmOptions,
+  crisisHelpOptions
+} from "./fields";
 
+import { defaultFormValues } from "./fields";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -83,36 +98,10 @@ export default function ProfileForm() {
   // 1. Define your form.
   const [isNavigating, setIsNavigating] = useState(false);
   
-  const [formValues, setFormValues] = useState<z.infer<typeof formSchema>>({
-  // Demographics
-  age: 25,
-  gender: '',
-  occupation: '',
-  relationshipStatus: '',
   
-  emotionalState: 5,
-  stressFrequency: 'Sometimes' as 'Never' | 'Rarely' | 'Sometimes' | 'Often' | 'Always',
-  // Mental Health History
-  priorTherapy: 'No' as 'Yes' | 'No' | 'Prefer not to say',
-  medication: 'No' as 'Yes' | 'No' | 'Prefer not to say',
-  pastDiagnosis: '',
-  // Wellbeing & Lifestyle
-  sleepQuality: 'Good' as 'Poor' | 'Fair' | 'Good' | 'Excellent',
-  appetite: 'Normal' as 'Decreased' | 'Normal' | 'Increased',
-  support: 'Yes' as 'Yes' | 'No' | 'Somewhat',
-  exerciseFrequency: 'Occasionally' as 'Never' | 'Occasionally' | 'Regularly',
-  // Goals & Preferences
-  goals: [] as string[],
-  preferredSupport: 'Chat' as 'Chat' | 'Self-help resources' | 'Both',
-  // Safety Screening
-  selfHarm: 'No' as 'Yes' | 'No' | 'Prefer not to say',
-  crisisHelp: 'No' as 'Yes' | 'No',
-  // Existing fields
-  productivity_impact: 0,
-  work_missed: 0,
-  relationship_issues: 0,
-  feeling_down: '',
-  userId: '',
+
+const [formValues, setFormValues] = useState<z.infer<typeof formSchema>>({
+  defaultFormValues
 })
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),

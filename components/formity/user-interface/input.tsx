@@ -18,7 +18,7 @@ export default function Input<T extends ElementType>({
   return (
     <As
       className={cn(
-        "block w-full rounded-full border border-neutral-800 bg-black px-7 py-4 text-left text-base text-white placeholder-white focus:outline-none focus:border-neutral-700",
+        "block w-full rounded-full border border-neutral-800 bg-white px-7 py-4 text-left text-base text-black placeholder-black focus:outline-none focus:border-neutral-700",
         className,
       )}
       {...props}

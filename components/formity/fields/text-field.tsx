@@ -26,13 +26,14 @@ export default function TextField({
   return (
     <Field
       id={id}
-      label={label}
+      label=""
       labelClassName={cn(
         "peer-placeholder-shown:top-[17px] peer-placeholder-shown:before:bg-transparent peer-focus:before:bg-neutral-950",
         "peer-placeholder-shown:text-base peer-focus:-top-[11px] peer-focus:text-sm",
       )}
       error={error}
     >
+      <span className="text-black">{label}</span>
       <Input
         as="input"
         id={id}
