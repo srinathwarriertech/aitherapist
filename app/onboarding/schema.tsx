@@ -17,6 +17,7 @@ import {
   MultiSelect
 } from "@/components/formity";
 import SliderField from "@/components/formity/react-hook-form/slider";
+import { fieldTypeSchemas, FormityResponse } from "./fields";
 
 import {
   goalsOptions,
@@ -49,47 +50,36 @@ import {
 
 
 
+import type {
+  DemographicFieldType,
+  PresentingConcernsType,
+  MentalHealthHistoryType,
+  WellbeingLifestyleType,
+  GoalsPreferencesType,
+  SafetyScreeningType,
+  ImpactOfProblemsType,
+  MoodFrequencyType
+} from "./fields";
+
 export type FormityValues = [
   // 1. Demographics
-  Form<{ age: number; gender?: string; occupation?: string; relationshipStatus?: string }>,
+  Form<DemographicFieldType>,
   // 2. Presenting Concerns
-  Form<{ emotionalState: number; stressFrequency: string }>,
+  Form<PresentingConcernsType>,
   // 3. Mental Health History
-  Form<{ priorTherapy: string; medication: string; pastDiagnosis?: string }>,
+  Form<MentalHealthHistoryType>,
   // 4. Wellbeing & Lifestyle
-  Form<{ sleepQuality: string; appetite: string; support: string; exerciseFrequency: string }>,
+  Form<WellbeingLifestyleType>,
   // 5. Goals & Preferences
-  Form<{ goals: string[]; preferredSupport: string }>,
+  Form<GoalsPreferencesType>,
   // 6. Safety Screening
-  Form<{ selfHarm: string; crisisHelp?: string }>,
+  Form<SafetyScreeningType>,
   // 7. Impact of Problems
-  Form<{ productivity_impact: number; work_missed: number; relationship_issues: number }>,
+  Form<ImpactOfProblemsType>,
   // 8. Mood Frequency
-  Form<{ feeling_down: string }>,
+  Form<MoodFrequencyType>,
   // Return type
-  Return<{
-    age: number;
-    gender?: string;
-    occupation?: string;
-    relationshipStatus?: string;
-    emotionalState: number;
-    stressFrequency: string;
-    priorTherapy: string;
-    medication: string;
-    pastDiagnosis?: string;
-    sleepQuality: string;
-    appetite: string;
-    support: string;
-    exerciseFrequency: string;
-    goals: string[];
-    preferredSupport: string;
-    selfHarm: string;
-    crisisHelp?: string;
-    productivity_impact: number;
-    work_missed: number;
-    relationship_issues: number;
-    feeling_down: string;
-  }>,
+  Return<FormityResponse>,
 ];
 
 export const schema: Schema<FormityValues> = [
@@ -274,7 +264,7 @@ export const schema: Schema<FormityValues> = [
               <MultiSelect
                 key="goals"
                 name="goals"
-                label="Select your goals"
+                label=""
                 options={goalsOptions.map(({ id, label }) => ({ value: id, label }))}
                 direction="y"
               />, 

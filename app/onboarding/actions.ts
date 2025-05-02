@@ -5,6 +5,7 @@ import { z } from "zod";
 import { createClient } from '@supabase/supabase-js';
 import { currentUser } from '@clerk/nextjs/server'
 import { formSchema} from './page';
+import { FormityResponse } from "./fields";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -16,24 +17,23 @@ if (!supabaseUrl || !supabaseAnonKey) {
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export async function onboardingFormSubmit(
-  values: z.infer<typeof formSchema>
+  values: FormityResponse
 ) {
   try {
     // Try to get current user, but make it optional
     const user = await currentUser().catch(() => null);
-    
+    let userId;
     if (user) {
       console.log("id:" + user.id);
-      values.userId = user.id;
+      userId = user.id;      
     } else {
       // Use a default ID if no user is available
-      values.userId = 'anonymous-' + Date.now().toString();
-      console.log("Using anonymous ID:", values.userId);
+      userId = 'anonymous-' + Date.now().toString();
     }
 
     const { data, error } = await supabase
       .from('OnboardingFormResponses')
-      .insert({ onboardingResponse: values })
+      .insert({ onboardingResponse: values , userId:userId })
       .select();
 
     if (error) console.log('Error inserting data:' + JSON.stringify(error));

@@ -1,46 +1,26 @@
 // onboardingAlgorithm.ts
 // Algorithm for mapping onboarding responses to result sections in the AI Therapist app
 
-export type OnboardingResponse = {
-  age?: number;
-  gender?: string;
-  occupation?: string;
-  relationshipStatus?: string;
-  presentingConcerns?: string[];
-  emotionalState?: number;
-  stressFrequency?: "Never" | "Rarely" | "Sometimes" | "Often" | "Always";
-  priorTherapy?: "Yes" | "No" | "Prefer not to say";
-  medication?: string;
-  pastDiagnosis?: string;
-  sleepQuality?: string;
-  appetite?: string;
-  support?: string;
-  exerciseFrequency?: string;
-  goals?: string[];
-  preferredSupport?: string;
-  selfHarm?: string;
-  crisisHelp?: string;
-  // Add any additional fields as needed
-  [key: string]: any;
-};
+import { FormityResponse, goalsOptions } from "./fields";
+
 
 export type ResultSection = {
   id: string; // goal id
   title: string;
   description: string;
 };
-// Map goal IDs to user-friendly labels
-export const goalLabels: Record<string, string> = {
-  feel_happier: 'Feel happier again',
-  regain_interest: 'Regain interest in activities I used to enjoy',
-  feel_relaxed: 'Feel more relaxed and in control',
-  improve_sleep: 'Improve my sleep',
-  reduce_alcohol: 'Reduce my use of alcohol',
-  reduce_smoking: 'Reduce my use of smoking, vaping or chew',
-  reduce_drugs: 'Reduce my use of drugs',
-};
+// // Map goal IDs to user-friendly labels
+// export const goalLabels: Record<string, string> = {
+//   feel_happier: 'Feel happier again',
+//   regain_interest: 'Regain interest in activities I used to enjoy',
+//   feel_relaxed: 'Feel more relaxed and in control',
+//   improve_sleep: 'Improve my sleep',
+//   reduce_alcohol: 'Reduce my use of alcohol',
+//   reduce_smoking: 'Reduce my use of smoking, vaping or chew',
+//   reduce_drugs: 'Reduce my use of drugs',
+// };
 
-export function processOnboardingResponses(responses: OnboardingResponse): ResultSection[] {
+export function processOnboardingResponses(responses: FormityResponse): ResultSection[] {
   const tags: string[] = [];
   const scores: Record<string, number> = {};
   const addScore = (key: string, value: number) => {
@@ -66,12 +46,12 @@ export function processOnboardingResponses(responses: OnboardingResponse): Resul
   // Expand with more mappings as needed
 
   // Example: Map presenting concerns
-  if (Array.isArray(responses.presentingConcerns)) {
-    responses.presentingConcerns.forEach((concern: string) => {
-      tags.push(concern.toLowerCase());
-      addScore(concern.toLowerCase(), 1);
-    });
-  }
+  // if (Array.isArray(responses.presentingConcerns)) {
+  //   responses.presentingConcerns.forEach((concern: string) => {
+  //     tags.push(concern.toLowerCase());
+  //     addScore(concern.toLowerCase(), 1);
+  //   });
+  // }
 
   // Generate result sections
   const resultSections: ResultSection[] = [];
@@ -112,7 +92,8 @@ export function processOnboardingResponses(responses: OnboardingResponse): Resul
 
   if (Array.isArray(responses.goals)) {
     responses.goals.forEach((goal: string) => {
-      const label = goalLabels[goal] || goal;
+      //Fetch label from goalsOptions
+      const label = goalsOptions.find(({ id }) => id === goal)?.label;
       resultSections.push({
         id: goal,
         title: `Goal: ${label}`,

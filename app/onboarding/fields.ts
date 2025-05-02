@@ -1,6 +1,89 @@
 // Centralized field value arrays and Zod fragments for onboarding forms
 import { z } from "zod";
 
+//FieldTypeSchemas
+// Field type schemas for onboarding steps
+export type DemographicFieldType = {
+  age: number;
+  gender?: string;
+  occupation?: string;
+  relationshipStatus?: string;
+};
+
+export type PresentingConcernsType = {
+  emotionalState: number;
+  stressFrequency: string;
+};
+
+export type MentalHealthHistoryType = {
+  priorTherapy: string;
+  medication: string;
+  pastDiagnosis?: string;
+};
+
+export type WellbeingLifestyleType = {
+  sleepQuality: string;
+  appetite: string;
+  support: string;
+  exerciseFrequency: string;
+};
+
+export type GoalsPreferencesType = {
+  goals: string[];
+  preferredSupport: string;
+};
+
+export type SafetyScreeningType = {
+  selfHarm: string;
+  crisisHelp?: string;
+};
+
+export type ImpactOfProblemsType = {
+  productivity_impact: number;
+  work_missed: number;
+  relationship_issues: number;
+};
+
+export type MoodFrequencyType = {
+  feeling_down: string;
+};
+
+export const fieldTypeSchemas = {
+  demographicFieldTypeSchema: {} as DemographicFieldType,
+  presentingConcernsType: {} as PresentingConcernsType,
+  mentalHealthHistoryType: {} as MentalHealthHistoryType,
+  wellbeingLifestyleType: {} as WellbeingLifestyleType,
+  goalsPreferencesType: {} as GoalsPreferencesType,
+  safetyScreeningType: {} as SafetyScreeningType,
+  impactOfProblemsType: {} as ImpactOfProblemsType,
+  moodFrequencyType: {} as MoodFrequencyType,
+};
+
+export type FormityResponse = {
+  age: number;
+    gender?: string;
+    occupation?: string;
+    relationshipStatus?: string;
+    emotionalState: number;
+    stressFrequency: string;
+    priorTherapy: string;
+    medication: string;
+    pastDiagnosis?: string;
+    sleepQuality: string;
+    appetite: string;
+    support: string;
+    exerciseFrequency: string;
+    goals: string[];
+    preferredSupport: string;
+    selfHarm: string;
+    crisisHelp?: string;
+    productivity_impact: number;
+    work_missed: number;
+    relationship_issues: number;
+    feeling_down: string;
+};
+
+// Enum value arrays
 export const goalsOptions = [
   { id: "feel_happier", label: "Feel happier again" },
   { id: "regain_interest", label: "Regain interest in activities I used to enjoy" },
