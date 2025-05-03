@@ -88,7 +88,7 @@ function ChatCard() {
         className="mb-4 h-24 w-24 object-contain rounded-xl shadow"
       />
       <h2 className="text-lg mb-2 text-[#5940A8] text-center">Talk to Airoh</h2>
-      <p className="text-gray-600 text-base mb-6 text-center">Chat with our AI therapist 24/7 for support.</p>
+      <p className="text-gray-600 text-base mb-6 text-center">Chat with our AI therapist - trained with your data.</p>
       <Link href="/chat">
         <button className="w-full px-6 py-2 rounded-lg bg-[#CCC6DD] text-[#5940A8] font-normal hover:bg-[#b3aad1] focus:outline-none focus:ring-2 focus:ring-[#7B64C0] transition">Talk to Airoh</button>
       </Link>
