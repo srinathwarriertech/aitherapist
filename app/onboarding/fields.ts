@@ -60,7 +60,7 @@ export const fieldTypeSchemas = {
 };
 
 export type FormityResponse = {
-  age: number;
+    age: number;
     gender?: string;
     occupation?: string;
     relationshipStatus?: string;

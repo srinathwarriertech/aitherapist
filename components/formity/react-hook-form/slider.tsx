@@ -21,9 +21,10 @@ export default function SliderField({ name, label, subLabel, min = 0, max = 7, s
       render={({ field }) => (
         <Field label="" error={error} id={name}>
           <span className="text-lg min-w-[24px] py-4">{label}</span>
+          <br />
           {subLabel && <span className="text-lg min-w-[24px] py-2 ">{subLabel}</span>}
           <div className="flex items-center gap-4 w-full">
-            <span className="text-lg font-semibold min-w-[24px]">{field.value} days</span>
+            <span className="text-lg font-semibold min-w-[24px]">{field.value}</span>
             <Slider
               min={min}
               max={max}

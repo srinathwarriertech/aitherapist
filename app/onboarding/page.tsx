@@ -12,6 +12,7 @@ import { useUser } from "@clerk/nextjs";
 import { Formity, OnReturn, ReturnOutput } from "@formity/react";
 import { Data } from "@/components/formity";
 import { schema, FormityValues } from "./schema";
+import { Box, CircularProgress, Container, Paper, Typography } from '@mui/material';
 import "./main.css";
 
 import { Button } from "@/components/ui/button"
@@ -74,13 +75,15 @@ const onReturn = useCallback<OnReturn<FormityValues>>(async (values) => {
   try {
     console.log("Inside onReturn values:", values)
     const result = await onboardingFormSubmit(values);
-    console.log("result", result)
-    // Generate results for sessionStorage
-    const resultSections = processOnboardingResponses(values);
-    console.log("resultSections", resultSections)
+    console.log("result", result);
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('onboardingData', JSON.stringify(values));
-      sessionStorage.setItem('onboardingResults', JSON.stringify(resultSections));
+      // Store scores, interventionPlan, userProfile in onboardingResults
+      sessionStorage.setItem('onboardingResults', JSON.stringify({
+        scores: result.scores,
+        interventionPlan: result.interventionPlan,
+        userProfile: result.userProfile
+      }));
     }
     router.push('/results');
   } catch (error) {
@@ -105,21 +108,50 @@ const onReturn = useCallback<OnReturn<FormityValues>>(async (values) => {
   }
 
   return (
-    <div className="onboarding-bg">
+    <Box sx={{ 
+      position: 'relative',
+      minHeight: '100vh',
+      py: 4,
+      background: theme => `linear-gradient(to bottom, ${theme.palette.background.default} 0%, ${theme.palette.background.paper} 100%)`
+    }}>
       {isNavigating && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-[#5940A8] border-solid"></div>
-          <span className="ml-4 text-xl font-semibold text-[#5940A8]">Generating Care Plan...</span>
-        </div>
+        <Box sx={{
+          position: 'absolute',
+          inset: 0,
+          zIndex: 50,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          bgcolor: 'background.default',
+          opacity: 0.9
+        }}>
+          <CircularProgress size={60} thickness={4} sx={{ color: 'primary.main' }} />
+          <Typography variant="h6" sx={{ ml: 2, color: 'primary.main' }}>
+            Generating Care Plan...
+          </Typography>
+        </Box>
       )}
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-4 relative">
-        <div className="max-w-2xl mx-auto p-8 bg-white rounded-xl shadow-lg">
-          <div className="onboarding-card">
-            {/* // Add formity multi page Form */}
-            <Formity<FormityValues> schema={schema} onReturn={onReturn} />        
-          </div>
-        </div>
-      </div>
-    </div>
+      <Container maxWidth="md" sx={{ position: 'relative', p: 4 }}>
+        <Paper 
+          elevation={0}
+          sx={{
+            p: 4,
+            borderRadius: '24px',
+            border: '1px solid rgba(0, 0, 0, 0.08)',
+            boxShadow: '0 2px 12px rgba(0, 0, 0, 0.08)'
+          }}
+        >
+          <Box sx={{ 
+            '& .onboarding-card': {
+              padding: 3,
+              borderRadius: '16px',
+              backgroundColor: 'background.paper'
+            }
+          }}>
+            <Formity<FormityValues> schema={schema} onReturn={onReturn} />
+          </Box>
+        </Paper>
+      </Container>
+    </Box>
   )
 }

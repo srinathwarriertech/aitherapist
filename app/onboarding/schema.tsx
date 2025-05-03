@@ -102,15 +102,12 @@ export const schema: Schema<FormityValues> = [
           <Layout
             heading="Let's get to know you!"
             description="Please share a few basics about yourself."
+            page={1}
             fields={[
-              <Row key="age-gender" items={[
-                <NumberField key="age" name="age" label="Age" min={10} max={120} />, 
-                <Select key="gender" name="gender" label="Gender" options={genderOptions.map((option) => ({ value: option, label: option }))} direction="y" />,
-              ]} />,
-              <Row key="occupation-status" items={[
-                <TextField key="occupation" name="occupation" label="Occupation (optional)" />, 
-                <Select key="relationshipStatus" name="relationshipStatus" label="Relationship Status" options={relationshipOptions.map((option) => ({ value: option, label: option }))} direction="y" />,
-              ]} />,
+              <NumberField key="age" name="age" label="Age" min={10} max={120} />, 
+              <Select key="gender" name="gender" label="Gender" options={genderOptions.map((option) => ({ value: option, label: option }))} direction="y" />,
+              <TextField key="occupation" name="occupation" label="Occupation (optional)" />, 
+              <Select key="relationshipStatus" name="relationshipStatus" label="Relationship Status" options={relationshipOptions.map((option) => ({ value: option, label: option }))} direction="y" />,
             ]}
             button={<NextButton>Next</NextButton>}
           />
@@ -136,7 +133,8 @@ export const schema: Schema<FormityValues> = [
         >
           <Layout
             heading="How are you feeling lately?"
-            description="Tell us about your emotional state and stress."
+            description=""
+            page={2}
             fields={[
               <SliderField key="emotionalState" name="emotionalState" label="How would you rate your current emotional state?" 
               subLabel="(1 = worst, 10 = best)"
@@ -174,6 +172,7 @@ export const schema: Schema<FormityValues> = [
           <Layout
             heading="Your Mental Health History"
             description="A few questions about your background."
+            page={3}
             fields={[
               <Select key="priorTherapy" name="priorTherapy" label="Have you attended therapy before?" options={[
                 { value: "Yes", label: "Yes" },
@@ -213,6 +212,7 @@ export const schema: Schema<FormityValues> = [
           <Layout
             heading="Your Wellbeing & Lifestyle"
             description="A few questions about your daily life."
+            page={4}
             fields={[
               <Select key="sleepQuality" name="sleepQuality" label="How would you rate your sleep quality?" options={[
                 { value: "Poor", label: "Poor" },
@@ -260,6 +260,7 @@ export const schema: Schema<FormityValues> = [
           <Layout
             heading="What are your goals and preferences?"
             description="Select your goals and how you'd like to receive support."
+            page={5}
             fields={[
               <MultiSelect
                 key="goals"
@@ -304,6 +305,7 @@ export const schema: Schema<FormityValues> = [
           <Layout
             heading="Safety Check"
             description="These questions help us keep you safe."
+            page={6}
             fields={[
               <Select key="selfHarm" name="selfHarm" label="Have you had thoughts of self-harm recently?" options={[
                 { value: "Yes", label: "Yes" },
@@ -346,6 +348,7 @@ export const schema: Schema<FormityValues> = [
           <Layout
             heading="How have your problems impacted you?"
             description="In the past week, how many days have physical or mental health problems caused you to... (0-7 days)"
+            page={7}
             fields={[
               <SliderField key="productivity_impact" name="productivity_impact" label="Be less productive at work" />, 
               <SliderField key="work_missed" name="work_missed" label="Miss work or not carry out daily responsibilities" />, 
@@ -376,6 +379,7 @@ export const schema: Schema<FormityValues> = [
           <Layout
             heading="How often have you been feeling down?"
             description="In the past week, how often have you been bothered by feeling down, depressed, or hopeless?"
+            page={8}
             fields={[
               <Select
                 key="feeling_down"
