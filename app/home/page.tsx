@@ -1,6 +1,8 @@
 "use client";
 import React from 'react';
 import Link from 'next/link';
+import toast, { Toaster } from 'react-hot-toast';
+import { Box, CircularProgress, Container, Paper, Typography } from '@mui/material';
 
 import { useUser } from '@clerk/nextjs';
 
@@ -13,6 +15,8 @@ const HomePage = () => {
 ) : (
   <h1 className="text-4xl font-normal mb-12 text-[#5940A8]">Welcome to Your Care Plan</h1>
 )}
+
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
         {/* Therapists Card */}
         <TherapistCard />
@@ -21,6 +25,10 @@ const HomePage = () => {
         {/* AIroh Card */}
         <ChatCard />
       </div>
+      <Toaster position="bottom-center" toastOptions={{ 
+        duration: 2000,
+        icon:'🚧'
+      }} />
     </div>
   );
 };
@@ -44,7 +52,13 @@ function TherapistCard() {
       <h2 className="text-lg mb-2 text-[#5940A8] text-center">Browse Therapists</h2>
       <p className="text-gray-600 text-base mb-6 text-center">Find the right therapist for you from our network.</p>
       <Link href="#">
-        <button className="w-full px-6 py-2 rounded-lg bg-[#CCC6DD] text-[#5940A8] font-normal hover:bg-[#b3aad1] focus:outline-none focus:ring-2 focus:ring-[#7B64C0] transition">Browse therapists</button>
+        {/* <button className="w-full px-6 py-2 rounded-lg bg-[#CCC6DD] text-[#5940A8] font-normal hover:bg-[#b3aad1] focus:outline-none focus:ring-2 focus:ring-[#7B64C0] transition">Browse therapists</button> */}
+        <button 
+          className="w-full px-6 py-2 rounded-lg bg-[#CCC6DD] text-[#5940A8] font-normal hover:bg-[#b3aad1] focus:outline-none focus:ring-2 focus:ring-[#7B64C0] transition"
+          onClick={() => toast.success('Feature coming soon...')}
+        >
+          Browse therapists
+        </button>
       </Link>
     </div>
   );
@@ -67,8 +81,15 @@ function MedicationCard() {
       <h2 className="text-lg mb-2 text-[#5940A8] text-center">Find a Medication Manager</h2>
       <p className="text-gray-600 text-base mb-6 text-center">Get matched with a medication management specialist.</p>
       <Link href="#">
-        <button className="w-full px-6 py-2 rounded-lg bg-[#CCC6DD] text-[#5940A8] font-normal hover:bg-[#b3aad1] focus:outline-none focus:ring-2 focus:ring-[#7B64C0] transition">Find a manager</button>
+        {/* <button className="w-full px-6 py-2 rounded-lg bg-[#CCC6DD] text-[#5940A8] font-normal hover:bg-[#b3aad1] focus:outline-none focus:ring-2 focus:ring-[#7B64C0] transition">Find a manager</button> */}
+        <button 
+          className="w-full px-6 py-2 rounded-lg bg-[#CCC6DD] text-[#5940A8] font-normal hover:bg-[#b3aad1] focus:outline-none focus:ring-2 focus:ring-[#7B64C0] transition"
+          onClick={() => toast.success('Feature coming soon...')}
+        >
+          Talk to your manager
+        </button>
       </Link>
+      
     </div>
   );
 }
@@ -76,12 +97,30 @@ function MedicationCard() {
 // Chat Card Component
 function ChatCard() {
   const [hovered, setHovered] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
   return (
     <div
       className="bg-white rounded-xl shadow-lg p-8 flex flex-col items-center min-h-[320px] h-full flex-1"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
+      {isNavigating && (
+        <Box sx={{
+          position: 'absolute',
+          inset: 0,
+          zIndex: 50,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          bgcolor: 'background.default',
+          opacity: 0.9
+        }}>
+          <CircularProgress size={60} thickness={4} sx={{ color: 'primary.main' }} />
+          <Typography variant="h6" sx={{ ml: 2, color: 'primary.main' }}>
+            Loading Airoh...
+          </Typography>
+        </Box>
+      )}
       <img
         src={hovered ? '/gifs/chat2.gif' : '/chat2.jpg'}
         alt="AIroh Icon"
@@ -90,11 +129,17 @@ function ChatCard() {
       <h2 className="text-lg mb-2 text-[#5940A8] text-center">Talk to Airoh</h2>
       <p className="text-gray-600 text-base mb-6 text-center">Chat with our AI therapist - trained with your data.</p>
       <Link href="/chat">
-        <button className="w-full px-6 py-2 rounded-lg bg-[#CCC6DD] text-[#5940A8] font-normal hover:bg-[#b3aad1] focus:outline-none focus:ring-2 focus:ring-[#7B64C0] transition">Talk to Airoh</button>
+        <button 
+          className="w-full px-6 py-2 rounded-lg bg-[#CCC6DD] text-[#5940A8] font-normal hover:bg-[#b3aad1] focus:outline-none focus:ring-2 focus:ring-[#7B64C0] transition"
+          onClick={() => {
+            setIsNavigating(true);
+          }}
+          >
+            Talk to Airoh
+          </button>
       </Link>
     </div>
   );
 }
 
 export default HomePage;
-

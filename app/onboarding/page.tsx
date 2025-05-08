@@ -73,6 +73,7 @@ export default function ProfileForm() {
   // Remove duplicate router declaration
 const onReturn = useCallback<OnReturn<FormityValues>>(async (values) => {
   try {
+    setIsNavigating(true);
     console.log("Inside onReturn values:", values)
     const result = await onboardingFormSubmit(values);
     console.log("result", result);
@@ -85,6 +86,7 @@ const onReturn = useCallback<OnReturn<FormityValues>>(async (values) => {
         userProfile: result.userProfile
       }));
     }
+    setIsNavigating(false);
     router.push('/results');
   } catch (error) {
     console.error('Formity submission error:', error);
