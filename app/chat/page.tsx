@@ -71,7 +71,23 @@ function getPrompt(){
   const prompt0 = `You are Airoh, an AI therapist designed to provide compassionate and personalized mental health support.
     Give 1 line answers, not asking for too much information at once, break them down.
     Before starting the conversation, here is the user's onboarding information:
+    - Age: ${userData.age || 'Not specified'}
+    - Gender: ${userData.gender || 'Not specified'}
+    - Occupation: ${userData.occupation || 'Not specified'}
+    - Relationship Status: ${userData.relationshipStatus || 'Not specified'}
+    - Emotional State: ${userData.emotional_state || 'Not specified'}
+    - Stress Frequency: ${userData.stress_frequency || 'Not specified'}
+    - Prior Therapy: ${userData.prior_therapy || 'Not specified'}
+    - Medication: ${userData.medication || 'Not specified'}
+    - Past Diagnosis: ${userData.past_diagnosis || 'Not specified'}
+    - Sleep Quality: ${userData.sleep_quality || 'Not specified'}
+    - Appetite: ${userData.appetite || 'Not specified'}
+    - Support: ${userData.support || 'Not specified'}
+    - Exercise Frequency: ${userData.exercise_frequency || 'Not specified'}
     - Goals: ${userData.goals?.join(', ') || 'Not specified'}
+    - Preferred Support: ${userData.preferred_support || 'Not specified'}
+    - Self Harm: ${userData.self_harm || 'Not specified'}
+    - Crisis Help: ${userData.crisis_help || 'Not specified'}
     - Productivity Impact: ${userData.productivity_impact || 0} days
     - Work Missed: ${userData.work_missed || 0} days
     - Relationship Issues: ${userData.relationship_issues || 0} days
@@ -101,11 +117,42 @@ function getPrompt(){
     // const prompt2=      //content: "You are a compassionate and helpful mental health expert called Maya in the app NeuroLiving by Dr. Sid Warrier, India's top neuroscientist, providing users with emotional support and practical advice."+
     //       "Your answers are warm, but with a deep knowledge of Neuroscience."+
     //        "You set the context, but only ask one question back to user at a time.",
-
   return prompt0;
 };
 
 export default function Chatbot() {
+  // --- QuickStarterOptions and follow-ups ---
+  const quickStarterOptions = [
+    'Work on my mental health journey',
+    'Journal',
+    'Rant',
+    'Learn about my brain',
+  ];
+  const quickStarterFollowups: Record<string, string[]> = {
+    "Work on my mental health journey":  [
+      "I want to assess where I stand on my 6 pillar balance journey.", //Which pillar should I start with : [ Physical, Social, Spiritual, Financial, Professional, Personal]
+    ],
+    "Journal": [
+      "Here's my current mood…",
+      'Give me some Journaling templates',
+      'Ask me what I did today',
+    ],
+    "Here's my current mood…": [
+      "Great" ,
+      "Good",
+      "Meh", 
+      "Horrible",
+    ],
+    "Rant": [
+      'I want to rant about …',
+    ],
+    "Learn about my brain": [
+      'What happens in the brain during  stress?',
+    ],
+  };
+
+  // --- END QuickStarterOptions ---
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   // State to store user input and conversation history
   const [userInput, setUserInput] = useState("");
@@ -117,11 +164,44 @@ export default function Chatbot() {
   ]);
   // State for quick replies (suggestions)
   const [quickReplies, setQuickReplies] = useState<string[]>([]);
+  const [showStarter, setShowStarter] = useState(true); // controls visibility of starter options
+  const [showStarterFollowups, setShowStarterFollowups] = useState(false); // controls visibility of starter followups
   // Loading state for typing animation
   const [loading, setLoading] = useState(false);
   
-  // Function to handle sending user message and receiving chatbot response
-  const handleSendMessage = async (inputOverride?: string) => {
+  // Handles both normal and starter quick options
+  async function handleSendMessage(inputOverride?: string, fromStarter?: boolean) {
+    console.log("1:quickReplies:",quickReplies);
+    console.log("1:showStarter:",showStarter);
+    console.log("1:fromStarter:",fromStarter);
+    console.log("1:inputOverride:",inputOverride);
+
+    if (fromStarter && inputOverride) {
+      // If starter option, set quickReplies to its follow-ups
+      console.log("2:quickStarterFollowups[inputOverride]",quickStarterFollowups[inputOverride]);
+      setQuickReplies(quickStarterFollowups[inputOverride]);
+      console.log("2:quickReplies",quickReplies);
+      console.log("2:fromStarter",fromStarter);
+      console.log("2:inputOverride",inputOverride);
+      console.log("2:showStarter",showStarter);
+      // setShowStarter(true);
+    }
+    if (!fromStarter && inputOverride) {
+      // If not starter option, set quickReplies to empty array
+      // console.log("5:fromStarter",fromStarter);
+      setQuickReplies([]);
+      if(inputOverride.endsWith("…")){
+        // don't se userMessage , just add inputOverride to TextField
+        setUserInput(inputOverride.split("…")[0]);
+        return;
+      }
+      if(inputOverride.endsWith("...")){
+        // don't se userMessage , just add inputOverride to TextField
+        setUserInput(inputOverride.split("...")[0]);
+        return;
+      }
+    }
+    
     const input = typeof inputOverride === 'string' ? inputOverride : userInput;
     if (!input.trim()) return;
 
@@ -131,7 +211,7 @@ export default function Chatbot() {
     const updatedMessages: Message[] = [...messages, userMessage];
     setMessages(updatedMessages);
     setUserInput(""); // Clear input field
-    setQuickReplies([]); // Clear quick replies while waiting for response
+    // setQuickReplies([]); // Clear quick replies while waiting for response
     setLoading(true); // Show typing animation
 
     try {
@@ -140,6 +220,7 @@ export default function Chatbot() {
       if(chatCompletion.startsWith("<think>")){
         chatCompletion = chatCompletion.split("</think>\n\n")[1];
       }
+      //console.log("chatCompletion",chatCompletion);
       let responseText = chatCompletion;
       let suggestions: string[] = [];
       // Try to extract and parse JSON from markdown code block, inline JSON, or raw JSON
@@ -170,8 +251,10 @@ export default function Chatbot() {
         role: "assistant",
         content: responseText || "Sorry, I couldn't process that.",
       };
-      setMessages([...updatedMessages, botMessage]);
-      setQuickReplies(suggestions);
+      setMessages([...updatedMessages, botMessage]);      
+      if(!fromStarter){
+        setQuickReplies(suggestions);
+      }
       setLoading(false); // Hide typing animation
     } catch (error) {
       console.error("Error fetching chatbot response:", error);
@@ -228,6 +311,7 @@ export default function Chatbot() {
             maxHeight: 'calc(100vh - 32px)',
           }}
         >
+          {/* Talk to Airoh */}
           <Box sx={{ 
             display: 'flex', 
             alignItems: 'center', 
@@ -275,8 +359,72 @@ export default function Chatbot() {
               },
             },
           }}>
+            {/* Show QuickStarterOptions at the very start, before any messages */}
+            {showStarter && (
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 2, mt: 2, ml: 6 , mb:4}}>
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  {quickStarterOptions.map((option, idx) => (
+                    <Button
+                      key={option}
+                      variant="outlined"
+                      color="primary"
+                      size="small"
+                      sx={{
+                        borderRadius: '20px',
+                        textTransform: 'none',
+                        fontWeight: 500,
+                        borderColor: '#5940A8',
+                        color: '#5940A8',
+                        backgroundColor: '#fff',
+                        '&:hover': {
+                          backgroundColor: '#f5f0ff',
+                          borderColor: '#432D8B',
+                          color: '#432D8B'
+                        }
+                      }}
+                      onClick={() => handleSendMessage(option, true)}
+                    >
+                      {option}
+                    </Button>
+                  ))}
+                </Box>
+              </Box>
+            )}
+            {/* Show QuickStarterFollowups as replies to QuickStarterOptions, before any messages */}
+            {showStarterFollowups && (
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 2, mt: 2, ml: 6 }}>
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  {quickStarterFollowups[inputOverride].map((option, idx) => (
+                    <Button
+                      key={option}
+                      variant="outlined"
+                      color="primary"
+                      size="small"
+                      sx={{
+                        borderRadius: '20px',
+                        textTransform: 'none',
+                        fontWeight: 500,
+                        borderColor: '#5940A8',
+                        color: '#5940A8',
+                        backgroundColor: '#fff',
+                        '&:hover': {
+                          backgroundColor: '#f5f0ff',
+                          borderColor: '#432D8B',
+                          color: '#432D8B'
+                        }
+                      }}
+                      onClick={() => handleSendMessage(option, false)}
+                    >
+                      {option}
+                    </Button>
+                  ))}
+                </Box>
+              </Box>
+            )}
+            {/* System response and Quick Replies */}
             {messages.slice(1).map((message, index) => (
               <React.Fragment key={index}>
+                {/* System response */}
                 <Box 
                   sx={{ 
                     display: 'flex', 
@@ -342,29 +490,29 @@ export default function Chatbot() {
                 {index === messages.slice(1).length - 1 && messages[messages.length - 1].role === 'assistant' && quickReplies.length > 0 && (
                   <Box sx={{ display: 'flex', gap: 1, mt: 1, ml: 6 }}>
                     {quickReplies.map((reply, idx) => (
-  <Button
-    key={idx}
-    variant="outlined"
-    color="primary"
-    size="small"
-    sx={{
-      borderRadius: '20px',
-      textTransform: 'none',
-      fontWeight: 500,
-      borderColor: '#5940A8',
-      color: '#5940A8',
-      backgroundColor: '#fff',
-      '&:hover': {
-        backgroundColor: '#f5f0ff',
-        borderColor: '#432D8B',
-        color: '#432D8B'
-      }
-    }}
-    onClick={() => handleSendMessage(reply)}
-  >
-    {reply}
-  </Button>
-))}
+                      <Button
+                        key={idx}
+                        variant="outlined"
+                        color="primary"
+                        size="small"
+                        sx={{
+                          borderRadius: '20px',
+                          textTransform: 'none',
+                          fontWeight: 500,
+                          borderColor: '#5940A8',
+                          color: '#5940A8',
+                          backgroundColor: '#fff',
+                          '&:hover': {
+                            backgroundColor: '#f5f0ff',
+                            borderColor: '#432D8B',
+                            color: '#432D8B'
+                          }
+                        }}
+                        onClick={() => handleSendMessage(reply)}
+                      >
+                        {reply}
+                      </Button>
+                    ))}
                   </Box>
                 )}
               </React.Fragment>
@@ -422,7 +570,7 @@ export default function Chatbot() {
             <div ref={messagesEndRef} />
           </Box>
 
-          {/* Input Area */}
+          {/* Input Area and Send button*/}
           <Box 
             sx={{ 
               display: 'flex', 
@@ -485,6 +633,7 @@ export default function Chatbot() {
               </Button>
             </Box>
             
+            {/* AI can make mistakes. Check important info. */}
             <Typography 
               variant="caption" 
               sx={{ 
