@@ -1,12 +1,34 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { useAuth } from '@clerk/nextjs';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { checkOnboardingStatus } from './actions';
 
 import { useUser } from '@clerk/nextjs';
 
 export default function Home() {
   const { user, isLoaded } = useUser();
+  // const { userId } = useAuth();
+  const userId = user?.id;
+  const [href, setHref] = useState('/onboarding');
+
+  useEffect(() => {
+    const checkOnboarding = async () => {
+      try {
+        const res = await checkOnboardingStatus();
+        const { success } = res;
+        console.log('Onboarding check result:', success);
+        setHref(success ? '/home' : '/onboarding');
+      } catch (error) {
+        console.error('Onboarding check failed:', error);
+      }
+    };
+
+    if (userId) checkOnboarding();
+  }, [userId]);
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-background">
       {isLoaded && user ? (
@@ -31,7 +53,7 @@ export default function Home() {
           <Link href="/employee/dashboard2">Dashboard</Link>
         </Button> */}
         <Button asChild variant="outline">
-          <Link href="/onboarding">Get Started</Link>
+          <Link href={href}>Get Started</Link>
         </Button>
       </div>
     </div>
