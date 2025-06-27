@@ -1,6 +1,7 @@
 "use client"
 import React, { useState, useRef, useEffect } from "react";
-import {Message, getGroqChatCompletion, getGroqResponse} from "./actions"
+// import {getGroqChatCompletion} from "./actions"
+import {Message,  getGroqResponse} from "./actions"
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { Box, Typography, Paper, TextField, Button, Container, CssBaseline } from '@mui/material';
 import ElephantAvatar from '../../components/ui/ElephantAvatar';
